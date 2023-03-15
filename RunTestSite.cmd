@@ -1,3 +1,3 @@
-pushd src\HtmlGenerator\bin\Debug\net472\Web\Index
-dotnet Microsoft.SourceBrowser.SourceIndexServer.dll
+pushd C:\Users\jaredpar\temp\site
+dotnet exec Microsoft.SourceBrowser.SourceIndexServer.dll
 popd

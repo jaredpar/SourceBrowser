@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using Basic.CompilerLog.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.SourceBrowser.Common;
@@ -44,7 +45,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             this.SolutionSourceFolder = Path.GetDirectoryName(solutionFilePath);
             this.SolutionDestinationFolder = solutionDestinationFolder;
             this.ProjectFilePath = solutionFilePath;
-            ServerPathMappings = serverPathMappings;
+            this.ServerPathMappings = serverPathMappings;
             this.solution = CreateSolution(solutionFilePath, properties, doNotIncludeReferencedProjects);
             this.Federation = federation ?? new Federation();
             this.PluginBlacklist = pluginBlacklist ?? Enumerable.Empty<string>();
@@ -448,7 +449,16 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             try
             {
                 Solution solution = null;
-                if (solutionFilePath.EndsWith(".sln", StringComparison.OrdinalIgnoreCase))
+                if (solutionFilePath.EndsWith(".complog", StringComparison.OrdinalIgnoreCase) ||
+                    solutionFilePath.EndsWith(".compilerlog", StringComparison.OrdinalIgnoreCase))
+                {
+                    properties = AddSolutionProperties(properties, solutionFilePath);
+                    var workspace = new BasicWorkspace();
+                    workspace.WorkspaceFailed += WorkspaceFailed;
+                    solution = workspace.OpenCompilerLog(solutionFilePath);
+                    this.workspace = workspace;
+                }
+                else if (solutionFilePath.EndsWith(".sln", StringComparison.OrdinalIgnoreCase))
                 {
                     properties = AddSolutionProperties(properties, solutionFilePath);
                     var workspace = CreateWorkspace(properties);

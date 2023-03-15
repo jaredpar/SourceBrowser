@@ -2,7 +2,7 @@
   "profiles": {
     "HtmlGenerator": {
       "commandName": "Project",
-      "commandLineArgs": "$(SolutionDir)TestCode\\TestSolution.sln /out:$(SolutionDir)src\\SourceIndexServer\\index"
+      "commandLineArgs": "C:\\Users\\jaredpar\\temp\\console\\msbuild.complog /out:c:\\users\\jaredpar\\temp\\site"
     }
   }
 }

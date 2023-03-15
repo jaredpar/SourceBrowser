@@ -29,7 +29,6 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             SolutionGenerator.LoadPlugins = options.LoadPlugins;
             SolutionGenerator.ExcludeTests = options.ExcludeTests;
 
-            AssertTraceListener.Register();
             AppDomain.CurrentDomain.FirstChanceException += FirstChanceExceptionHandler.HandleFirstChanceException;
 
             // This loads the real MSBuild from the toolset so that all targets and SDKs can be found
@@ -104,6 +103,16 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             {
                 var invocations = BinLogCompilerInvocationsReader.ExtractInvocations(filePath);
                 return invocations.Select(i => Path.GetFileNameWithoutExtension(i.Parsed.OutputFileName)).ToArray();
+            }
+
+            if (filePath.EndsWith(".complog", System.StringComparison.OrdinalIgnoreCase) ||
+                filePath.EndsWith(".compilerlog", System.StringComparison.OrdinalIgnoreCase))
+            {
+                var reader = Basic.CompilerLog.Util.CompilerLogReader.Create(filePath);
+                return reader
+                    .ReadCompilerCalls()
+                    .Select(x => Path.GetFileNameWithoutExtension(x.ProjectFileName))
+                    .ToArray();
             }
 
             return AssemblyNameExtractor.GetAssemblyNames(filePath);
