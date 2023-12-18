@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\Directory.Build.props = src\Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Basic.CompilerLog.Util", "..\basic-compiler-logger\src\Basic.CompilerLog.Util\Basic.CompilerLog.Util.csproj", "{DD5CF110-2CC7-4A95-A040-538382C9C998}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Basic.CompilerLog.Util", "..\complog\src\Basic.CompilerLog.Util\Basic.CompilerLog.Util.csproj", "{DD5CF110-2CC7-4A95-A040-538382C9C998}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

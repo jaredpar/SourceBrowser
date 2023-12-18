@@ -453,9 +453,10 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                     solutionFilePath.EndsWith(".compilerlog", StringComparison.OrdinalIgnoreCase))
                 {
                     properties = AddSolutionProperties(properties, solutionFilePath);
-                    var workspace = new BasicWorkspace();
+                    var reader = SolutionReader.Create(solutionFilePath, BasicAnalyzerHostOptions.None);
+                    var workspace = new AdhocWorkspace();
                     workspace.WorkspaceFailed += WorkspaceFailed;
-                    solution = workspace.OpenCompilerLog(solutionFilePath);
+                    solution = workspace.AddSolution(reader.ReadSolutionInfo());
                     this.workspace = workspace;
                 }
                 else if (solutionFilePath.EndsWith(".sln", StringComparison.OrdinalIgnoreCase))

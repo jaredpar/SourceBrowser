@@ -110,7 +110,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             {
                 var reader = Basic.CompilerLog.Util.CompilerLogReader.Create(filePath);
                 return reader
-                    .ReadCompilerCalls()
+                    .ReadAllCompilerCalls()
                     .Select(x => Path.GetFileNameWithoutExtension(x.ProjectFileName))
                     .ToArray();
             }
