@@ -1,21 +1,37 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
+using Microsoft.SourceBrowser.SourceIndexServer.Models;
 
-namespace Microsoft.SourceBrowser.SourceIndexServer
+var builder = WebApplication.CreateBuilder(args);
+
+var rootPath = Path.Combine(builder.Environment.ContentRootPath, "index");
+builder.Services.AddSingleton(new IndexMap(rootPath));
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+var app = builder.Build();
+app.Use(async (context, next) =>
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            BuildWebHost(args).Run();
-        }
+    context.Response.Headers["X-UA-Compatible"] = "IE=edge";
+    await next();
+});
 
-        public static IHost BuildWebHost(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(
-                    builder => { builder
-                        .UseStartup<Startup>(); })
-                .UseWindowsService()
-                .Build();
-    }
+if (builder.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
 }
+
+var provider = new PhysicalFileProvider(rootPath, ExclusionFilters.Sensitive & ~ExclusionFilters.DotPrefixed);
+app.UseDefaultFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = provider,
+});
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapRazorPages();
+app.MapControllers();
+app.Run();

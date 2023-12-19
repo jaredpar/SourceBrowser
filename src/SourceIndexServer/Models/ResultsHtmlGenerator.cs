@@ -10,9 +10,11 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
     {
         private readonly Query query;
         private readonly StringBuilder sb = new StringBuilder();
+        private readonly string project;
 
-        public ResultsHtmlGenerator(Query query)
+        public ResultsHtmlGenerator(string project, Query query)
         {
+            this.project = project;
             this.query = query;
         }
 
@@ -439,7 +441,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
 
             foreach (var symbol in symbolsInAssembly)
             {
-                Markup.WriteSymbol(symbol, sb);
+                Markup.WriteSymbol(project, symbol, sb);
             }
 
             WriteLine("</div></div>");

@@ -60,9 +60,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             return result.ToString();
         }
 
-        public static void WriteSymbol(DeclaredSymbolInfo symbol, StringBuilder sb)
+        public static void WriteSymbol(string project, DeclaredSymbolInfo symbol, StringBuilder sb)
         {
-            var url = symbol.GetUrl();
+            var url = symbol.GetUrl(project);
             sb.AppendFormat("<a href=\"{0}\" target=\"s\"><div class=\"resultItem\" onClick=\"resultClick(this);\">", url);
             sb.Append("<div class=\"resultLine\">");
             sb.AppendFormat("<img role=\"presentation\" src=\"/content/icons/{0}\" height=\"16\" width=\"16\" />", GetGlyph(symbol) + ".png");

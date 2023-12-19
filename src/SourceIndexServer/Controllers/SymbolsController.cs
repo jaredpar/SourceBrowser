@@ -43,7 +43,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
         }
 
         [HttpGet("/api/symbolurl")]
-        public IActionResult GetSymbolUrl(string symbolId)
+        public IActionResult GetSymbolUrl(string symbolId, string project)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
 
                 var symbol = index.symbols[position];
                 var info = symbol.GetDeclaredSymbolInfo(index.huffman, index.assemblies, index.projects);
-                var url = info.GetUrl();
+                var url = info.GetUrl(project);
 
                 return Content(url, "text/plain", Encoding.UTF8);
             }
@@ -171,7 +171,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
                 }
 
                 var query = index.Get(symbol);
-                var result = new ResultsHtmlGenerator(query).Generate(sw, index, usageStats);
+                var result = new ResultsHtmlGenerator(project, query).Generate(sw, index, usageStats);
                 return result;
             }
         }

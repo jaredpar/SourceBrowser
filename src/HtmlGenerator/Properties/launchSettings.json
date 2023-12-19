@@ -2,7 +2,8 @@
   "profiles": {
     "HtmlGenerator": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\jaredpar\\temp\\console\\msbuild.complog /out:c:\\users\\jaredpar\\temp\\site"
+      "commandLineArgs": "..\\complog\\build.complog /out:testSite /force",
+      "workingDirectory": "c:\\users\\jaredpar\\code\\SourceBrowser"
     }
   }
 }

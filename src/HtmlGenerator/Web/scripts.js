@@ -20,25 +20,10 @@ var supportedFileExtensions = [
     "resx"
 ];
 
-function getProjectName() {
-    const params = new URLSearchParams(window.location.search);
-    const name = params.get('project');
-    if (!name) {
-        return "complog";
-    }
-
-    return name;
-}
-
-function getProjectPage(pageName) {
-    return getProjectName() + "/" + pageName;
-}
-
 function redirectLocation(frame, newLocation) {
-    if (frame.location.href == newLocation) {
+    if (frame.location.href.endsWith(newLocation)) {
         return;
     }
-
     frame.location.replace(newLocation);
 }
 
@@ -174,7 +159,7 @@ function processHash() {
             redirectLocation(n, "/" + potentialFile + "/namespaces.html");
         }
     } else if (useSolutionExplorer) {
-        redirectLocation(n, getProjectPage("SolutionExplorer.html"));
+        redirectLocation(n, "SolutionExplorer.html");
     }
 }
 
@@ -193,9 +178,10 @@ function onPageLoaded() {
         return;
     }
 
+    /*
     var pathname = document.location.pathname;
-    if (pathname.toLowerCase().slice(0, 11) == "/index.html") {
-        redirectLocation(top, "/");
+    if (pathname.toLowerCase().endsWith("/index.html")) {
+        redirectLocation(top, pathname.substring(0, pathname.length - 11))
         return;
     }
 
@@ -204,6 +190,7 @@ function onPageLoaded() {
         redirectLocation(top, "/");
         return;
     }
+    */
 
     processHash();
 }
@@ -221,7 +208,7 @@ function onHeaderLoad() {
         if (this.value != lastSearchString || (event && event.keyCode == 13)) {
             lastSearchString = this.value;
             if (!top.n.document.getElementById("symbols")) {
-                top.n.location = getProjectPage("results.html");
+                top.n.location = "results.html";
                 setTimeout(onSearchChange, 50);
             }
 
@@ -624,7 +611,7 @@ function runSearch() {
     }
 
     setPageTitle(searchBox.value);
-    lastQuery = getUrl("api/symbols/?symbol=" + escape(searchBox.value), loadSearchResults);
+    lastQuery = getUrl("/api/symbols/?symbol=" + escape(searchBox.value) + "&project=" + projectName, loadSearchResults);
 }
 
 function getUrl(url, callback) {

@@ -231,7 +231,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
                 index.symbols = testData.Select(dsi => new IndexEntry(dsi)).ToList();
                 index.PopulateSymbolsById();
                 var query = index.Get(queryString);
-                var actualHtml = new ResultsHtmlGenerator(query).Generate(index: index);
+                var actualHtml = new ResultsHtmlGenerator("complog", query).Generate(index: index);
                 Assert.AreEqual(expectedHtml, actualHtml);
             }
         }
