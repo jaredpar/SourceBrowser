@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@page
+@model Microsoft.SourceBrowser.SourceIndexServer.Models.IndexModel
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -24,7 +27,7 @@
                   framespacing="20">
             <frame name="n"
                    id="n"
-                   src="results.html"
+                   src=@(Model.Project + "/results.html")
                    border="0"
                    frameborder="0"
                    role="directory"

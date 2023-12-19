@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -7,6 +8,31 @@ using Microsoft.SourceBrowser.Common;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer.Models
 {
+    public class IndexMap : IDisposable
+    {
+        public Dictionary<string, Index> Map { get; } = new Dictionary<string, Index>();
+
+        public IndexMap(string basePath)
+        {
+            foreach (var dir in Directory.EnumerateDirectories(basePath))
+            {
+                if (File.Exists(Path.Combine(dir, "Projects.txt")))
+                {
+                    var index = new Index(dir);
+                    Map.Add(Path.GetFileName(dir), index);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var index in Map.Values)
+            {
+                index.Dispose();
+            }
+        }
+    }
+
     public class Index : IDisposable
     {
         public const int MaxRawResults = 100;

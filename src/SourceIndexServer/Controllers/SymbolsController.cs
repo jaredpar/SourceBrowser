@@ -27,12 +27,12 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
         }
 
         [HttpGet("/api/symbols")]
-        public IActionResult GetHtml(string symbol)
+        public IActionResult GetHtml(string symbol, string project = null)
         {
             string result = null;
             try
             {
-                result = GetHtmlCore(symbol);
+                result = GetHtmlCore(symbol, project);
             }
             catch (Exception ex)
             {
@@ -144,7 +144,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
             }
         }
 
-        private string GetHtmlCore(string symbol, string usageStats = null)
+        private string GetHtmlCore(string symbol, string project, string usageStats = null)
         {
             if (symbol == null || symbol.Length < 3)
             {
@@ -163,9 +163,14 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
             {
                 Stopwatch sw = Stopwatch.StartNew();
 
-                var index = _provider.GetRequiredService<Index>();
-                var query = index.Get(symbol);
+                project ??= "complog";
+                var indexMap = _provider.GetRequiredService<IndexMap>();
+                if (!indexMap.Map.TryGetValue(project, out var index))
+                {
+                    return Markup.Note($"Project '{project}' not found.");
+                }
 
+                var query = index.Get(symbol);
                 var result = new ResultsHtmlGenerator(query).Generate(sw, index, usageStats);
                 return result;
             }

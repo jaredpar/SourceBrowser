@@ -20,6 +20,20 @@ var supportedFileExtensions = [
     "resx"
 ];
 
+function getProjectName() {
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('project');
+    if (!name) {
+        return "complog";
+    }
+
+    return name;
+}
+
+function getProjectPage(pageName) {
+    return getProjectName() + "/" + pageName;
+}
+
 function redirectLocation(frame, newLocation) {
     if (frame.location.href == newLocation) {
         return;
@@ -160,7 +174,7 @@ function processHash() {
             redirectLocation(n, "/" + potentialFile + "/namespaces.html");
         }
     } else if (useSolutionExplorer) {
-        redirectLocation(n, "SolutionExplorer.html");
+        redirectLocation(n, getProjectPage("SolutionExplorer.html"));
     }
 }
 
@@ -207,7 +221,7 @@ function onHeaderLoad() {
         if (this.value != lastSearchString || (event && event.keyCode == 13)) {
             lastSearchString = this.value;
             if (!top.n.document.getElementById("symbols")) {
-                top.n.location = "results.html";
+                top.n.location = getProjectPage("results.html");
                 setTimeout(onSearchChange, 50);
             }
 
@@ -1097,7 +1111,7 @@ function initializeProjectIndex(url) {
 }
 
 function initializeProjectExplorer() {
-    makeFoldersCollapsible(/* closed folder */"202.png", "201.png", "../content/icons/", initializeSolutionExplorerFolder);
+    makeFoldersCollapsible(/* closed folder */"202.png", "201.png", "../../content/icons/", initializeSolutionExplorerFolder);
     initializeProjectExplorerRootFolder();
     trackActiveItemInSolutionExplorer();
 }
@@ -1117,7 +1131,7 @@ function onSolutionExplorerLoad() {
 }
 
 function loadSolutionExplorer() {
-    makeFoldersCollapsible(/* closed folder */"202.png", "201.png", "content/icons/", initializeSolutionExplorerFolder);
+    makeFoldersCollapsible(/* closed folder */"202.png", "201.png", "../content/icons/", initializeSolutionExplorerFolder);
     document.getElementById("rootFolder").style.display = "block";
 }
 

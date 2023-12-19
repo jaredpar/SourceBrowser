@@ -272,7 +272,7 @@ Don't use this page directly, pass #symbolId to get redirected.
 
         public static void WriteSolutionExplorerPrefix(TextWriter writer)
         {
-            writer.WriteLine(@"<!DOCTYPE html><html><head><title>Solution Explorer</title><link rel=""stylesheet"" href=""styles.css"" /><script src=""scripts.js""></script></head>
+            writer.WriteLine(@"<!DOCTYPE html><html><head><title>Solution Explorer</title><link rel=""stylesheet"" href=""../styles.css"" /><script src=""scripts.js""></script></head>
 <body class=""solutionExplorerBody"">
     <div>
         <div class=""note"">
@@ -341,8 +341,8 @@ Don't use this page directly, pass #symbolId to get redirected.
         public static string GetResultsHtmlPrefix()
         {
             return @"<!DOCTYPE html><html><head><title>Results</title>
-<link rel=""stylesheet"" href=""styles.css"" />
-<script src=""scripts.js""></script>
+<link rel=""stylesheet"" href=""../styles.css"" />
+<script src=""../scripts.js""></script>
 </head>
 <body onload=""onResultsLoad();"">
 <div id=""symbols"" aria-live=""polite"">

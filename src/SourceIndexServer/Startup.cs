@@ -23,14 +23,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
         public void ConfigureServices(IServiceCollection services)
         {
             RootPath = Path.Combine(Environment.ContentRootPath, "index");
-
-            var subfolder = Path.Combine(RootPath, "index");
-            if (File.Exists(Path.Combine(subfolder, "Projects.txt")))
-            {
-                RootPath = subfolder;
-            }
-
-            services.AddSingleton(new Index(RootPath));
+            services.AddSingleton(new IndexMap(RootPath));
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
