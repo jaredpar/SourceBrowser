@@ -200,5 +200,6 @@ FakesAssemblies/
 *.opt
 /src/SourceIndexServer/Index
 *.binlog
+*.complog
 
 nuget.exe
