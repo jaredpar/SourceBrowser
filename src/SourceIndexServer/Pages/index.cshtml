@@ -4,9 +4,11 @@
 <h3>Projects</h3>
 <span>
   <ul>
-    @foreach (var name in Model.Manager.GetProjectNames())
+    @foreach (var name in Model.Manager.GetRepositoryNames())
     {
       <li><a href="/@name/index.html">@name</a></li>
     }
   </ul>
 </span>
+
+<span><a href="/upload">Upload a new repository</a></span>
