@@ -244,6 +244,12 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 }
             }
 
+            if (string.IsNullOrEmpty(solutionDestinationFolder))
+            {
+                Log.Exception("No output folder specified.", isSevere: true);
+                projects.Clear();
+            }
+
             return new CommandLineOptions(
                 solutionDestinationFolder,
                 projects,

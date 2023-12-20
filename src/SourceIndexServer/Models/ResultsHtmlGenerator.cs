@@ -18,7 +18,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             this.query = query;
         }
 
-        public string Generate(Stopwatch sw = null, Index index = null, string usageStats = null)
+        public string Generate(Stopwatch sw = null, ProjectIndex index = null, string usageStats = null)
         {
             sb.Clear();
 
@@ -69,7 +69,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             return sb.ToString();
         }
 
-        private void WriteMSBuildPropertiesResults(Index index)
+        private void WriteMSBuildPropertiesResults(ProjectIndex index)
         {
             if (query.ResultMSBuildProperties == null || !query.ResultMSBuildProperties.Any())
             {
@@ -79,9 +79,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Properties");
             string count = query.ResultMSBuildProperties.Count.ToString();
-            if (count == Index.MaxRawResults.ToString())
+            if (count == ProjectIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + Index.MaxRawResults.ToString();
+                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild properties that match '" + query.OriginalString + "' (" + count + ")";
@@ -103,7 +103,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("</div></div>");
         }
 
-        private void WriteMSBuildItemsResults(Index index)
+        private void WriteMSBuildItemsResults(ProjectIndex index)
         {
             if (query.ResultMSBuildItems == null || !query.ResultMSBuildItems.Any())
             {
@@ -113,9 +113,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Items");
             string count = query.ResultMSBuildItems.Count.ToString();
-            if (count == Index.MaxRawResults.ToString())
+            if (count == ProjectIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + Index.MaxRawResults.ToString();
+                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild items that match '" + query.OriginalString + "' (" + count + ")";
@@ -137,7 +137,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("</div></div>");
         }
 
-        private void WriteMSBuildTargetsResults(Index index)
+        private void WriteMSBuildTargetsResults(ProjectIndex index)
         {
             if (query.ResultMSBuildTargets == null || !query.ResultMSBuildTargets.Any())
             {
@@ -147,9 +147,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Targets");
             string count = query.ResultMSBuildTargets.Count.ToString();
-            if (count == Index.MaxRawResults.ToString())
+            if (count == ProjectIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + Index.MaxRawResults.ToString();
+                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild targets that match '" + query.OriginalString + "' (" + count + ")";
@@ -171,7 +171,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("</div></div>");
         }
 
-        private void WriteMSBuildTasksResults(Index index)
+        private void WriteMSBuildTasksResults(ProjectIndex index)
         {
             if (query.ResultMSBuildTasks == null || !query.ResultMSBuildTasks.Any())
             {
@@ -181,9 +181,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Tasks");
             string count = query.ResultMSBuildTasks.Count.ToString();
-            if (count == Index.MaxRawResults.ToString())
+            if (count == ProjectIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + Index.MaxRawResults.ToString();
+                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild tasks that match '" + query.OriginalString + "' (" + count + ")";
@@ -226,7 +226,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine(Markup.Li(Markup.A(url)));
         }
 
-        private static readonly string affiliateLinksFilePath = Path.Combine(Index.RootPath, "AffiliateLinks.txt");
+        private static readonly string affiliateLinksFilePath = Path.Combine(ProjectIndex.RootPath, "AffiliateLinks.txt");
         private static string[] affiliateUrls;
         private static string[] AffiliateUrls
         {
@@ -255,7 +255,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             }
         }
 
-        private void WriteSymbolResults(Index index)
+        private void WriteSymbolResults(ProjectIndex index)
         {
             if (query.ResultSymbols == null || !query.ResultSymbols.Any())
             {
@@ -281,7 +281,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             }
         }
 
-        private int GetNumberOfReferences(string assemblyName, Index index)
+        private int GetNumberOfReferences(string assemblyName, ProjectIndex index)
         {
             return index.GetReferencingAssembliesCount(assemblyName);
         }
@@ -291,7 +291,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             return resultsInAssembly.Min(d => d.Weight);
         }
 
-        private void WriteAssemblyResults(Index index = null)
+        private void WriteAssemblyResults(ProjectIndex index = null)
         {
             if (query.ResultAssemblies == null || !query.ResultAssemblies.Any())
             {
@@ -301,9 +301,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "Assemblies");
             string count = query.ResultAssemblies.Count.ToString();
-            if (count == Index.MaxRawResults.ToString())
+            if (count == ProjectIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + Index.MaxRawResults.ToString();
+                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
             }
 
             string assemblySearchTerm = query.GetSearchTermForAssemblySearch() ?? "";
@@ -336,7 +336,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("</div></div>");
         }
 
-        private void WriteProjectResults(Index index = null)
+        private void WriteProjectResults(ProjectIndex index = null)
         {
             if (query.ResultProjects == null || !query.ResultProjects.Any())
             {
@@ -346,9 +346,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "Projects");
             string count = query.ResultProjects.Count.ToString();
-            if (count == Index.MaxRawResults.ToString())
+            if (count == ProjectIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + Index.MaxRawResults.ToString();
+                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
             }
 
             string assemblyHeader = "Projects in '" + query.GetSearchTermForProjectSearch() + "' (" + count + ")";
@@ -370,7 +370,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("</div></div>");
         }
 
-        private void WriteGuidResults(Index index)
+        private void WriteGuidResults(ProjectIndex index)
         {
             if (query.ResultGuids == null || !query.ResultGuids.Any())
             {
@@ -380,9 +380,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "Guids");
             string count = query.ResultGuids.Count.ToString();
-            if (count == Index.MaxRawResults.ToString())
+            if (count == ProjectIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + Index.MaxRawResults.ToString();
+                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
             }
 
             string guidHeader = "Guids that match '" + query.OriginalString + "' (" + count + ")";
@@ -408,14 +408,14 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
         {
             int count = query.ResultSymbols.Count();
             string message = count + string.Format(" result{0} found:", count == 1 ? "" : "s");
-            if (count >= Index.MaxRawResults)
+            if (count >= ProjectIndex.MaxRawResults)
             {
                 if (query.PotentialRawResults > count)
                 {
                     count = query.PotentialRawResults;
                 }
 
-                message = "Displaying top " + Index.MaxRawResults + " results out of " + count + ":";
+                message = "Displaying top " + ProjectIndex.MaxRawResults + " results out of " + count + ":";
             }
             else if (count == 0)
             {

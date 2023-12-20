@@ -190,7 +190,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
 
         public void Test(IEnumerable<KeyValuePair<string, string>> input, string pattern, params string[] expectedResults)
         {
-            using (var index = new Index())
+            using (var index = new ProjectIndex())
             {
                 var huffman = Huffman.Create(input.Select(kvp => kvp.Value));
                 index.indexFinishedPopulating = true;
@@ -207,7 +207,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
 
         static IndexUnitTests()
         {
-            Index.SetRootPath(Path.GetDirectoryName(typeof(IndexUnitTests).GetTypeInfo().Assembly.Location)); 
+            ProjectIndex.SetRootPath(Path.GetDirectoryName(typeof(IndexUnitTests).GetTypeInfo().Assembly.Location)); 
         }
 
         public void EndToEnd(string queryString, string expectedHtml)
@@ -223,7 +223,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
                 }
             };
 
-            using (var index = new Index())
+            using (var index = new ProjectIndex())
             {
                 var huffman = Huffman.Create(testData.Select(i => i.Description));
                 index.indexFinishedPopulating = true;
@@ -238,7 +238,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
 
         private void Test(string[] input, string pattern, string[] expectedResults)
         {
-            var index = new Index();
+            var index = new ProjectIndex();
             index.symbols = new List<IndexEntry>(input.Select(s => new IndexEntry(s)));
             index.PopulateSymbolsById();
             var foundSymbols = index.FindSymbols(pattern);

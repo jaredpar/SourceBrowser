@@ -4,11 +4,11 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
 {
     public class IndexModel : PageModel
     {
-        public string Project { get; set; }
+        public ProjectManager Manager { get; }
 
-        public void OnGet(string project = null)
+        public IndexModel(ProjectManager manager)
         {
-            Project = project ?? "complog";
+            Manager = manager;
         }
     }
 }

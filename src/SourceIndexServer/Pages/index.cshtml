@@ -1,6 +1,10 @@
 ﻿@page
 @model Microsoft.SourceBrowser.SourceIndexServer.Models.IndexModel
 
+
 <span>
-  <a href="/complog/index.html">Complog</a>
+  @foreach (var name in Model.Manager.GetProjectNames())
+  {
+    <a href="/@name/index.html">@name</a>
+  }
 </span>

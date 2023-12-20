@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SourceBrowser.Common;
 using Microsoft.SourceBrowser.SourceIndexServer.Models;
-using Index = Microsoft.SourceBrowser.SourceIndexServer.Models.Index;
+using ProjectIndex = Microsoft.SourceBrowser.SourceIndexServer.Models.ProjectIndex;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
 {
@@ -52,7 +52,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
                     return NotFound();
                 }
 
-                var index = _provider.GetRequiredService<Index>();
+                var index = _provider.GetRequiredService<ProjectIndex>();
                 if (!index.symbolsById.TryGetValue(id, out int position))
                 {
                     return NotFound();
@@ -164,14 +164,14 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
                 Stopwatch sw = Stopwatch.StartNew();
 
                 project ??= "complog";
-                var indexMap = _provider.GetRequiredService<IndexMap>();
-                if (!indexMap.Map.TryGetValue(project, out var index))
+                var manager = _provider.GetRequiredService<ProjectManager>();
+                if (!manager.TryGetProject(project, out var p))
                 {
                     return Markup.Note($"Project '{project}' not found.");
                 }
 
-                var query = index.Get(symbol);
-                var result = new ResultsHtmlGenerator(project, query).Generate(sw, index, usageStats);
+                var query = p.Index.Get(symbol);
+                var result = new ResultsHtmlGenerator(project, query).Generate(sw, p.Index, usageStats);
                 return result;
             }
         }

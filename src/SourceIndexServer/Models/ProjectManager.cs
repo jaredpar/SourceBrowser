@@ -1,5 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -8,32 +11,50 @@ using Microsoft.SourceBrowser.Common;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer.Models
 {
-    public class IndexMap : IDisposable
+    public sealed class ProjectManager : IDisposable
     {
-        public Dictionary<string, Index> Map { get; } = new Dictionary<string, Index>();
+        private ConcurrentDictionary<string, Project> map { get; } = new ConcurrentDictionary<string, Project>();
 
-        public IndexMap(string basePath)
+        public ProjectManager(string basePath)
         {
             foreach (var dir in Directory.EnumerateDirectories(basePath))
             {
                 if (File.Exists(Path.Combine(dir, "Projects.txt")))
                 {
-                    var index = new Index(dir);
-                    Map.Add(Path.GetFileName(dir), index);
+                    var project = new Project(Path.GetFileName(dir), dir);
+                    map.TryAdd(project.Name, project);
                 }
             }
         }
 
+        public bool TryGetProject(string projectName, [NotNullWhen(true)] out Project? project)
+        {
+            return map.TryGetValue(projectName, out project);
+        }
+
+        public IEnumerable<string> GetProjectNames()
+        {
+            return map.Keys;
+        }
+
         public void Dispose()
         {
-            foreach (var index in Map.Values)
+            foreach (var project in map.Values)
             {
-                index.Dispose();
+                project.Index.Dispose();
             }
         }
     }
 
-    public class Index : IDisposable
+    public sealed class Project(string name, string rootPath)
+    {
+        public string Name { get; } = name;
+        public ProjectIndex Index { get; } = new ProjectIndex(rootPath);
+    }
+
+#nullable disable
+
+    public class ProjectIndex : IDisposable
     {
         public const int MaxRawResults = 100;
 
@@ -45,11 +66,12 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             RootPath = rootPath;
         }
 
-        public Index()
+        public ProjectIndex()
         {
+
         }
 
-        public Index(string rootPath)
+        public ProjectIndex(string rootPath)
         {
             RootPath = rootPath;
             Task.Run(() => IndexLoader.ReadIndex(this, rootPath));
@@ -488,7 +510,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Models
             this.projects = null;
         }
 
-        ~Index()
+        ~ProjectIndex()
         {
             Dispose();
         }

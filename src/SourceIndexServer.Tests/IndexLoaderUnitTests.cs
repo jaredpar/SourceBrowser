@@ -6,7 +6,7 @@ using Microsoft.SourceBrowser.Common;
 using Microsoft.SourceBrowser.SourceIndexServer;
 using Microsoft.SourceBrowser.SourceIndexServer.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Index = Microsoft.SourceBrowser.SourceIndexServer.Models.Index;
+using ProjectIndex = Microsoft.SourceBrowser.SourceIndexServer.Models.ProjectIndex;
 
 namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
 {
@@ -84,7 +84,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
         //[TestMethod]
         public void LoadIndex()
         {
-            Index index = ReadIndex();
+            ProjectIndex index = ReadIndex();
             var matches = index.FindSymbols("Microsoft.CodeAnalysis.CSharp.Symbols.SourceNamedTypeSymbol");
             var expected = new DeclaredSymbolInfo()
             {
@@ -169,9 +169,9 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
             }
         }
 
-        private static Index ReadIndex()
+        private static ProjectIndex ReadIndex()
         {
-            Index index = new Index();
+            ProjectIndex index = new ProjectIndex();
             string rootPath = GetRootPath();
             IndexLoader.ReadIndex(index, rootPath);
             return index;

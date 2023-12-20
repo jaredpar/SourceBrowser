@@ -5,7 +5,7 @@ using Microsoft.SourceBrowser.SourceIndexServer.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 var rootPath = Path.Combine(builder.Environment.ContentRootPath, "index");
-builder.Services.AddSingleton(new IndexMap(rootPath));
+builder.Services.AddSingleton(new ProjectManager(rootPath));
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
