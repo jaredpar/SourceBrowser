@@ -35,17 +35,8 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             // as if a real build is happening
             MSBuildLocator.RegisterDefaults();
 
-            if (Paths.SolutionDestinationFolder == null)
-            {
-                Paths.SolutionDestinationFolder = Path.Combine(Microsoft.SourceBrowser.Common.Paths.BaseAppFolder, "index");
-            }
-
-            var websiteDestination = Paths.SolutionDestinationFolder;
-
             // Warning, this will delete and recreate your destination folder
             Paths.PrepareDestinationFolder(options.Force);
-
-            Paths.SolutionDestinationFolder = Path.Combine(Paths.SolutionDestinationFolder, "index"); //The actual index files need to be written to the "index" subdirectory
 
             Directory.CreateDirectory(Paths.SolutionDestinationFolder);
 
