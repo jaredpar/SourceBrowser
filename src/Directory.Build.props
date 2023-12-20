@@ -3,6 +3,9 @@
   <PropertyGroup>
     <AnalysisLevel>5</AnalysisLevel>
     <LangVersion>latest</LangVersion>
+
+    <NuGetVersionRoslyn>4.8.0</NuGetVersionRoslyn>
+    <NuGetVersionMSBuild>17.5.0</NuGetVersionMSBuild>
   </PropertyGroup>
 
 </Project>
