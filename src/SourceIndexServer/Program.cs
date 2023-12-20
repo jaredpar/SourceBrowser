@@ -8,6 +8,7 @@ var rootPath = Path.Combine(builder.Environment.ContentRootPath, "index");
 // HACK
 var htmlGeneratorFilePath = @"C:\Users\jaredpar\code\SourceBrowser\src\HtmlGenerator\bin\Debug\net8.0\HtmlGenerator.dll";
 builder.Services.AddSingleton(new RepositoryManager(rootPath));
+builder.Services.AddSingleton<RepositoryUrlRewriter>();
 builder.Services.AddScoped(sp => new ProjectContentGenerator(rootPath, htmlGeneratorFilePath));
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -25,6 +26,7 @@ if (builder.Environment.IsDevelopment())
 }
 
 var provider = new PhysicalFileProvider(rootPath, ExclusionFilters.Sensitive & ~ExclusionFilters.DotPrefixed);
+app.UseRepositoryUrlRewriter();
 app.UseDefaultFiles();
 
 app.UseStaticFiles(new StaticFileOptions

@@ -83,5 +83,6 @@ public sealed class RepositoryManager : IDisposable
 public sealed class Repository(string name, string rootPath)
 {
     public string Name { get; } = name;
+    public string DirectoryName { get; } = Path.GetFileName(rootPath);
     public RepositoryIndex Index { get; } = new RepositoryIndex(rootPath);
 }
