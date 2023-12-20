@@ -61,9 +61,9 @@
     <PackageReference Include="GuiLabs.Language.Xml" Version="1.2.46" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Basic.CompilerLog.Util" Version="0.5.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\complog\src\Basic.CompilerLog.Util\Basic.CompilerLog.Util.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\MEF\MEF.csproj" />
   </ItemGroup>
