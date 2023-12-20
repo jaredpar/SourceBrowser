@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 
 namespace Microsoft.SourceBrowser.HtmlGenerator
 {
     public class Federation
     {
+        private static HttpClient httpClient = new();
+
         public static IEnumerable<string> DefaultFederatedIndexUrls = new[]
         {
             "https://referencesource.microsoft.com",
@@ -73,7 +75,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
         {
             var url = GetAssemblyUrl(server);
 
-            var assemblyList = new WebClient().DownloadString(url);
+            var assemblyList = httpClient.GetStringAsync(url).Result;
             var assemblyNames = GetAssemblyNames(assemblyList);
 
             federations.Add(new Info(server, assemblyNames));

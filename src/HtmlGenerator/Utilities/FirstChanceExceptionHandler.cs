@@ -5,7 +5,6 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Xml;
 using Microsoft.SourceBrowser.Common;
-using ExceptionAnalysis.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -133,13 +132,6 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                     }
 
                     if (stackTrace.Contains("at System.Guid.StringToInt"))
-                    {
-                        return;
-                    }
-
-                    var trace = new TraceFactory().Manufacture(ex);
-
-                    if (trace.Select(f => f.Method.Module).Any(IgnoredModules.Contains))
                     {
                         return;
                     }

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>HtmlGenerator</AssemblyName>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Microsoft.SourceBrowser.HtmlGenerator</RootNamespace>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>embedded</DebugType>
@@ -39,7 +39,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ExceptionAnalysis.Diagnostics" Version="1.0.0.39796" />
     <PackageReference Include="Microsoft.Build" Version="$(NuGetVersionMSBuild)" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Build.Framework" Version="$(NuGetVersionMSBuild)" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Build.Locator" Version="1.5.5" />
@@ -67,9 +66,6 @@
     <ProjectReference Include="..\..\..\complog\src\Basic.CompilerLog.Util\Basic.CompilerLog.Util.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\MEF\MEF.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Configuration" />
   </ItemGroup>
   <!--<Target Name="PublishWebsite" AfterTargets="CoreBuild" BeforeTargets="BuildNuGet">
     <MSBuild Targets="Publish" Projects="$(MSBuildThisFileDirectory)..\SourceIndexServer\SourceIndexServer.csproj" Properties="PublishDir=$(TargetDir)\Web;Configuration=Release" RemoveProperties="TargetFramework" />
