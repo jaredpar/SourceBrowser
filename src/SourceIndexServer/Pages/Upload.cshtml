@@ -1,0 +1,16 @@
+@page
+@model UploadModel
+
+<form method="post" enctype="multipart/form-data">
+    <div>
+        <label asp-for="ProjectName">Project Name</label>
+        <input type="text" asp-for="ProjectName" />
+    </div>
+    <div>
+        <label asp-for="Upload">Compiler Log</label>
+        <input type="file" asp-for="Upload" />
+    </div>
+    <div>
+        <input type="submit" />
+    </div>
+</form>
