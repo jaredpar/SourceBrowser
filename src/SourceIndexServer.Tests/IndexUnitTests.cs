@@ -206,7 +206,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
 
         static IndexUnitTests()
         {
-            ProjectIndex.SetRootPath(Path.GetDirectoryName(typeof(IndexUnitTests).GetTypeInfo().Assembly.Location)); 
+            ProjectIndex.SetContentPath(Path.GetDirectoryName(typeof(IndexUnitTests).GetTypeInfo().Assembly.Location)); 
         }
 
         public void EndToEnd(string queryString, string expectedHtml)

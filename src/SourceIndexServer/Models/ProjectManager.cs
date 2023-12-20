@@ -13,11 +13,17 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
 {
     public sealed class ProjectManager : IDisposable
     {
+        private string RootPath { get; }
+
+        /// <summary>
+        /// This maintains a map of the directory name in the root to the project.
+        /// </summary>
         private ConcurrentDictionary<string, Project> map { get; } = new ConcurrentDictionary<string, Project>();
 
-        public ProjectManager(string basePath)
+        public ProjectManager(string rootPath)
         {
-            foreach (var dir in Directory.EnumerateDirectories(basePath))
+            RootPath = rootPath;
+            foreach (var dir in Directory.EnumerateDirectories(rootPath))
             {
                 if (File.Exists(Path.Combine(dir, "Projects.txt")))
                 {
@@ -30,6 +36,12 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
         public bool TryGetProject(string projectName, [NotNullWhen(true)] out Project? project)
         {
             return map.TryGetValue(projectName, out project);
+        }
+
+        public void AddProject(string projectName)
+        {
+            var project = new Project(projectName, Path.Combine(RootPath, projectName));
+            map.TryAdd(projectName, project);
         }
 
         public IEnumerable<string> GetProjectNames()
@@ -58,12 +70,12 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
     {
         public const int MaxRawResults = 100;
 
-        public static string RootPath { get; private set; }
+        public static string ContentPath { get; private set; }
 
         // For testing
-        public static void SetRootPath(string rootPath)
+        public static void SetContentPath(string contentPath)
         {
-            RootPath = rootPath;
+            ContentPath = contentPath;
         }
 
         public ProjectIndex()
@@ -73,7 +85,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
 
         public ProjectIndex(string rootPath)
         {
-            RootPath = rootPath;
+            ContentPath = rootPath;
             Task.Run(() => IndexLoader.ReadIndex(this, rootPath));
         }
 

@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Build.Evaluation;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer.Pages;
 
 public class UploadModel : PageModel
 {
     private ProjectManager Manager { get; }
+    private ProjectContentGenerator Generator { get; }
 
     [BindProperty]
     public string ProjectName { get; set; }
@@ -13,25 +15,17 @@ public class UploadModel : PageModel
     [BindProperty]
     public IFormFile Upload { get; set; }
 
-    public UploadModel(ProjectManager manager)
+    public UploadModel(ProjectManager manager, ProjectContentGenerator generator)
     {
         Manager = manager;
-    }
-
-    public void OnGet()
-    {
-
+        Generator = generator;
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        throw new NotImplementedException();
-        /*
-        var file = Path.Combine(_environment.ContentRootPath, "uploads", Upload.FileName);
-        using (var fileStream = new FileStream(file, FileMode.Create))
-        {
-            await Upload.CopyToAsync(fileStream);
-        }
-        */
+        using var stream = Upload.OpenReadStream();
+        var dirName = await Generator.Generate(stream);
+        Manager.AddProject(dirName);
+        return RedirectToPage("Index");
     }
 }

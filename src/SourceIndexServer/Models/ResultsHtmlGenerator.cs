@@ -226,7 +226,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine(Markup.Li(Markup.A(url)));
         }
 
-        private static readonly string affiliateLinksFilePath = Path.Combine(ProjectIndex.RootPath, "AffiliateLinks.txt");
+        private static readonly string affiliateLinksFilePath = Path.Combine(ProjectIndex.ContentPath, "AffiliateLinks.txt");
         private static string[] affiliateUrls;
         private static string[] AffiliateUrls
         {
