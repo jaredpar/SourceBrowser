@@ -9,7 +9,8 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
     public sealed class CommandLineOptions
     {
         public CommandLineOptions(
-            string solutionDestinationFolder,
+            string name,
+            string contentDirectory,
             IReadOnlyList<string> projects,
             IReadOnlyDictionary<string, string> properties,
             bool emitAssemblyList,
@@ -24,7 +25,8 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             bool excludeTests,
             string rootPath)
         {
-            SolutionDestinationFolder = solutionDestinationFolder;
+            Name = name;
+            ContentDirectory = contentDirectory;
             Projects = projects;
             Properties = properties;
             EmitAssemblyList = emitAssemblyList;
@@ -40,7 +42,8 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             RootPath = rootPath;
         }
 
-        public string SolutionDestinationFolder { get; }
+        public string Name { get; }
+        public string ContentDirectory { get; }
         public IReadOnlyList<string> Projects { get; }
         public IReadOnlyDictionary<string, string> Properties { get; }
         public bool EmitAssemblyList { get; }
@@ -57,7 +60,8 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
         public static CommandLineOptions Parse(params string[] args)
         {
-            var solutionDestinationFolder = (string)null;
+            var projectName = (string)null;
+            var contentDirectory = (string)null;
             var projects = new List<string>();
             var properties = new Dictionary<string, string>();
             var emitAssemblyList = false;
@@ -76,7 +80,13 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             {
                 if (arg.StartsWith("/out:", StringComparison.Ordinal))
                 {
-                    solutionDestinationFolder = Path.GetFullPath(arg.Substring("/out:".Length).StripQuotes());
+                    contentDirectory = Path.GetFullPath(arg.Substring("/out:".Length).StripQuotes());
+                    continue;
+                }
+
+                if (arg.StartsWith("/name:", StringComparison.Ordinal))
+                {
+                    projectName = arg.Substring("/name:".Length).StripQuotes();
                     continue;
                 }
 
@@ -244,14 +254,15 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 }
             }
 
-            if (string.IsNullOrEmpty(solutionDestinationFolder))
+            if (string.IsNullOrEmpty(contentDirectory))
             {
                 Log.Exception("No output folder specified.", isSevere: true);
                 projects.Clear();
             }
 
             return new CommandLineOptions(
-                solutionDestinationFolder,
+                projectName ?? Path.GetFileName(contentDirectory),
+                contentDirectory,
                 projects,
                 properties,
                 emitAssemblyList,

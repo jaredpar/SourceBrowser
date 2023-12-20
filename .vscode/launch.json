@@ -35,9 +35,14 @@
             "request": "launch",
             "type": "coreclr",
             "preLaunchTask": "dotnet: build",
-            "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator",
+            "windows": {
+                "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator.dll"
+            },
+            "linux": {
+                "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator"
+            },
             "cwd": "${workspaceFolder}",
-            "args": ["../complog/build.complog", "/out:testSite", "/force" ]
+            "args": ["../complog/build.complog", "/out:testSite", "/force", "/projectName:complog" ]
             // "cwd": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net6.0",
         }
     ]

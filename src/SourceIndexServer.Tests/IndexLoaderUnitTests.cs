@@ -82,7 +82,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
         //[TestMethod]
         public void LoadIndex()
         {
-            ProjectIndex index = ReadIndex();
+            RepositoryIndex index = ReadIndex();
             var matches = index.FindSymbols("Microsoft.CodeAnalysis.CSharp.Symbols.SourceNamedTypeSymbol");
             var expected = new DeclaredSymbolInfo()
             {
@@ -167,9 +167,9 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
             }
         }
 
-        private static ProjectIndex ReadIndex()
+        private static RepositoryIndex ReadIndex()
         {
-            ProjectIndex index = new ProjectIndex();
+            RepositoryIndex index = new RepositoryIndex();
             string rootPath = GetRootPath();
             IndexLoader.ReadIndex(index, rootPath);
             return index;

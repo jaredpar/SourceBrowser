@@ -37,7 +37,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
             Dictionary<int, int> semantic,
             Dictionary<int, int> expectedOutput)
         {
-            Paths.SolutionDestinationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            Paths.ContentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var expectedArray = expectedOutput.ToArray();
             var result = TypeScriptSupport.PrepareRanges(

@@ -12,7 +12,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
     public static class Paths
     {
         private static string solutionDestinationFolder;
-        public static string SolutionDestinationFolder
+        public static string ContentDirectory
         {
             get { return solutionDestinationFolder; }
             set { solutionDestinationFolder = value.MustBeAbsolute(); }
@@ -22,7 +22,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
         {
             get
             {
-                string root = SolutionDestinationFolder ?? Common.Paths.BaseAppFolder;
+                string root = ContentDirectory ?? Common.Paths.BaseAppFolder;
 
                 return Path.Combine(root, "ProcessedAssemblies.txt");
             }
@@ -46,11 +46,11 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 return;
             }
 
-            if (Directory.Exists(SolutionDestinationFolder))
+            if (Directory.Exists(ContentDirectory))
             {
                 if (!forceOverwrite)
                 {
-                    Log.Write(string.Format("Warning, {0} will be deleted! Are you sure? (y/n)", SolutionDestinationFolder), ConsoleColor.Red);
+                    Log.Write(string.Format("Warning, {0} will be deleted! Are you sure? (y/n)", ContentDirectory), ConsoleColor.Red);
                     var ch = Console.ReadKey().KeyChar;
                     if (ch != 'y')
                     {
@@ -76,17 +76,17 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                     }
                 }
 
-                Log.Write("Deleting " + SolutionDestinationFolder);
+                Log.Write("Deleting " + ContentDirectory);
                 try
                 {
-                    Directory.Delete(SolutionDestinationFolder, recursive: true);
+                    Directory.Delete(ContentDirectory, recursive: true);
                 }
                 catch (Exception)
                 {
                 }
             }
 
-            Directory.CreateDirectory(SolutionDestinationFolder);
+            Directory.CreateDirectory(ContentDirectory);
         }
 
         public static bool IsOrContains(string path, string possibleDescendent)

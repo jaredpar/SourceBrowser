@@ -1,9 +1,12 @@
 ﻿@page
 @model IndexModel
 
+<h3>Projects</h3>
 <span>
-  @foreach (var name in Model.Manager.GetProjectNames())
-  {
-    <a href="/@name/index.html">@name</a>
-  }
+  <ul>
+    @foreach (var name in Model.Manager.GetProjectNames())
+    {
+      <li><a href="/@name/index.html">@name</a></li>
+    }
+  </ul>
 </span>

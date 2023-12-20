@@ -25,7 +25,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 return;
             }
 
-            Paths.SolutionDestinationFolder = options.SolutionDestinationFolder;
+            Paths.ContentDirectory = options.ContentDirectory;
             SolutionGenerator.LoadPlugins = options.LoadPlugins;
             SolutionGenerator.ExcludeTests = options.ExcludeTests;
 
@@ -38,10 +38,10 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             // Warning, this will delete and recreate your destination folder
             Paths.PrepareDestinationFolder(options.Force);
 
-            Directory.CreateDirectory(Paths.SolutionDestinationFolder);
+            Directory.CreateDirectory(Paths.ContentDirectory);
 
-            Log.ErrorLogFilePath = Path.Combine(Paths.SolutionDestinationFolder, Log.ErrorLogFile);
-            Log.MessageLogFilePath = Path.Combine(Paths.SolutionDestinationFolder, Log.MessageLogFile);
+            Log.ErrorLogFilePath = Path.Combine(Paths.ContentDirectory, Log.ErrorLogFile);
+            Log.MessageLogFilePath = Path.Combine(Paths.ContentDirectory, Log.MessageLogFile);
 
             using (Disposable.Timing("Generating website"))
             {
@@ -62,7 +62,8 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 IndexSolutions(options.Projects, options.Properties, federation, options.ServerPathMappings, options.PluginBlacklist, options.DoNotIncludeReferencedProjects, options.RootPath);
                 FinalizeProjects(options.EmitAssemblyList, federation);
                 // WebsiteFinalizer.Finalize(websiteDestination, options.EmitAssemblyList, federation);
-                CopyFiles();
+                CopyFiles(options.Name);
+                File.WriteAllText(Path.Combine(Paths.ContentDirectory, "name.txt"), options.Name);
             }
             Log.Close();
         }
@@ -71,6 +72,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
         {
             Console.WriteLine("Usage: HtmlGenerator "
                 + "[/out:<outputdirectory>] "
+                + "[/name:<projectName>] "
                 + "[/force] "
                 + "[/useplugins] "
                 + "[/noplugins] "
@@ -88,18 +90,18 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
         private static readonly Folder<ProjectSkeleton> mergedSolutionExplorerRoot = new Folder<ProjectSkeleton>();
 
-        private static void CopyFiles()
+        private static void CopyFiles(string name)
         {
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "index.html"), Path.Combine(Paths.SolutionDestinationFolder, "index.html"));
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "overview.html"), Path.Combine(Paths.SolutionDestinationFolder, "overview.html"));
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "header.html"), Path.Combine(Paths.SolutionDestinationFolder, "header.html"));
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "documentoutline.html"), Path.Combine(Paths.SolutionDestinationFolder, "documentoutline.html"));
+            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "index.html"), Path.Combine(Paths.ContentDirectory, "index.html"));
+            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "overview.html"), Path.Combine(Paths.ContentDirectory, "overview.html"));
+            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "header.html"), Path.Combine(Paths.ContentDirectory, "header.html"));
+            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "documentoutline.html"), Path.Combine(Paths.ContentDirectory, "documentoutline.html"));
 
             var lines = File.ReadAllLines(Path.Combine(Common.Paths.BaseAppFolder, "Web", "scripts.js"));
             File.WriteAllLines( 
-                Path.Combine(Paths.SolutionDestinationFolder, "scripts.js"),
+                Path.Combine(Paths.ContentDirectory, "scripts.js"),
                 Enumerable.Concat(
-                    new string[] { @"var projectName=""complog"";" },
+                    new string[] { @$"var repositoryName=""{name}"";" },
                     lines));
         }
 
@@ -185,7 +187,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
                     using (var solutionGenerator = new SolutionGenerator(
                         path,
-                        Paths.SolutionDestinationFolder,
+                        Paths.ContentDirectory,
                         properties: properties.ToImmutableDictionary(),
                         federation: federation,
                         serverPathMappings: serverPathMappings,
@@ -205,13 +207,13 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
         private static void FinalizeProjects(bool emitAssemblyList, Federation federation)
         {
-            GenerateLooseFilesProject(Constants.MSBuildFiles, Paths.SolutionDestinationFolder);
-            GenerateLooseFilesProject(Constants.TypeScriptFiles, Paths.SolutionDestinationFolder);
+            GenerateLooseFilesProject(Constants.MSBuildFiles, Paths.ContentDirectory);
+            GenerateLooseFilesProject(Constants.TypeScriptFiles, Paths.ContentDirectory);
             using (Disposable.Timing("Finalizing references"))
             {
                 try
                 {
-                    var solutionFinalizer = new SolutionFinalizer(Paths.SolutionDestinationFolder);
+                    var solutionFinalizer = new SolutionFinalizer(Paths.ContentDirectory);
                     solutionFinalizer.FinalizeProjects(emitAssemblyList, federation, mergedSolutionExplorerRoot);
                 }
                 catch (Exception ex)

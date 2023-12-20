@@ -18,7 +18,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             this.query = query;
         }
 
-        public string Generate(Stopwatch sw = null, ProjectIndex index = null, string usageStats = null)
+        public string Generate(Stopwatch sw = null, RepositoryIndex index = null, string usageStats = null)
         {
             sb.Clear();
 
@@ -69,7 +69,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             return sb.ToString();
         }
 
-        private void WriteMSBuildPropertiesResults(ProjectIndex index)
+        private void WriteMSBuildPropertiesResults(RepositoryIndex index)
         {
             if (query.ResultMSBuildProperties == null || !query.ResultMSBuildProperties.Any())
             {
@@ -79,9 +79,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Properties");
             string count = query.ResultMSBuildProperties.Count.ToString();
-            if (count == ProjectIndex.MaxRawResults.ToString())
+            if (count == RepositoryIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
+                count = "showing first " + RepositoryIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild properties that match '" + query.OriginalString + "' (" + count + ")";
@@ -103,7 +103,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("</div></div>");
         }
 
-        private void WriteMSBuildItemsResults(ProjectIndex index)
+        private void WriteMSBuildItemsResults(RepositoryIndex index)
         {
             if (query.ResultMSBuildItems == null || !query.ResultMSBuildItems.Any())
             {
@@ -113,9 +113,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Items");
             string count = query.ResultMSBuildItems.Count.ToString();
-            if (count == ProjectIndex.MaxRawResults.ToString())
+            if (count == RepositoryIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
+                count = "showing first " + RepositoryIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild items that match '" + query.OriginalString + "' (" + count + ")";
@@ -137,7 +137,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("</div></div>");
         }
 
-        private void WriteMSBuildTargetsResults(ProjectIndex index)
+        private void WriteMSBuildTargetsResults(RepositoryIndex index)
         {
             if (query.ResultMSBuildTargets == null || !query.ResultMSBuildTargets.Any())
             {
@@ -147,9 +147,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Targets");
             string count = query.ResultMSBuildTargets.Count.ToString();
-            if (count == ProjectIndex.MaxRawResults.ToString())
+            if (count == RepositoryIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
+                count = "showing first " + RepositoryIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild targets that match '" + query.OriginalString + "' (" + count + ")";
@@ -171,7 +171,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("</div></div>");
         }
 
-        private void WriteMSBuildTasksResults(ProjectIndex index)
+        private void WriteMSBuildTasksResults(RepositoryIndex index)
         {
             if (query.ResultMSBuildTasks == null || !query.ResultMSBuildTasks.Any())
             {
@@ -181,9 +181,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "MSBuild Tasks");
             string count = query.ResultMSBuildTasks.Count.ToString();
-            if (count == ProjectIndex.MaxRawResults.ToString())
+            if (count == RepositoryIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
+                count = "showing first " + RepositoryIndex.MaxRawResults.ToString();
             }
 
             string header = "MSBuild tasks that match '" + query.OriginalString + "' (" + count + ")";
@@ -226,7 +226,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine(Markup.Li(Markup.A(url)));
         }
 
-        private static readonly string affiliateLinksFilePath = Path.Combine(ProjectIndex.ContentPath, "AffiliateLinks.txt");
+        private static readonly string affiliateLinksFilePath = Path.Combine(RepositoryIndex.ContentPath, "AffiliateLinks.txt");
         private static string[] affiliateUrls;
         private static string[] AffiliateUrls
         {
@@ -255,7 +255,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             }
         }
 
-        private void WriteSymbolResults(ProjectIndex index)
+        private void WriteSymbolResults(RepositoryIndex index)
         {
             if (query.ResultSymbols == null || !query.ResultSymbols.Any())
             {
@@ -281,7 +281,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             }
         }
 
-        private int GetNumberOfReferences(string assemblyName, ProjectIndex index)
+        private int GetNumberOfReferences(string assemblyName, RepositoryIndex index)
         {
             return index.GetReferencingAssembliesCount(assemblyName);
         }
@@ -291,7 +291,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             return resultsInAssembly.Min(d => d.Weight);
         }
 
-        private void WriteAssemblyResults(ProjectIndex index = null)
+        private void WriteAssemblyResults(RepositoryIndex index = null)
         {
             if (query.ResultAssemblies == null || !query.ResultAssemblies.Any())
             {
@@ -301,9 +301,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "Assemblies");
             string count = query.ResultAssemblies.Count.ToString();
-            if (count == ProjectIndex.MaxRawResults.ToString())
+            if (count == RepositoryIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
+                count = "showing first " + RepositoryIndex.MaxRawResults.ToString();
             }
 
             string assemblySearchTerm = query.GetSearchTermForAssemblySearch() ?? "";
@@ -336,7 +336,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("</div></div>");
         }
 
-        private void WriteProjectResults(ProjectIndex index = null)
+        private void WriteProjectResults(RepositoryIndex index = null)
         {
             if (query.ResultProjects == null || !query.ResultProjects.Any())
             {
@@ -346,9 +346,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "Projects");
             string count = query.ResultProjects.Count.ToString();
-            if (count == ProjectIndex.MaxRawResults.ToString())
+            if (count == RepositoryIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
+                count = "showing first " + RepositoryIndex.MaxRawResults.ToString();
             }
 
             string assemblyHeader = "Projects in '" + query.GetSearchTermForProjectSearch() + "' (" + count + ")";
@@ -370,7 +370,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("</div></div>");
         }
 
-        private void WriteGuidResults(ProjectIndex index)
+        private void WriteGuidResults(RepositoryIndex index)
         {
             if (query.ResultGuids == null || !query.ResultGuids.Any())
             {
@@ -380,9 +380,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("<div class=\"resultGroup\">");
             WriteLine("<a href=\"javascript:void(0)\" class=\"resultGroupHeader\" onClick=\"toggle(this, '{0}');\">", "Guids");
             string count = query.ResultGuids.Count.ToString();
-            if (count == ProjectIndex.MaxRawResults.ToString())
+            if (count == RepositoryIndex.MaxRawResults.ToString())
             {
-                count = "showing first " + ProjectIndex.MaxRawResults.ToString();
+                count = "showing first " + RepositoryIndex.MaxRawResults.ToString();
             }
 
             string guidHeader = "Guids that match '" + query.OriginalString + "' (" + count + ")";
@@ -408,14 +408,14 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
         {
             int count = query.ResultSymbols.Count();
             string message = count + string.Format(" result{0} found:", count == 1 ? "" : "s");
-            if (count >= ProjectIndex.MaxRawResults)
+            if (count >= RepositoryIndex.MaxRawResults)
             {
                 if (query.PotentialRawResults > count)
                 {
                     count = query.PotentialRawResults;
                 }
 
-                message = "Displaying top " + ProjectIndex.MaxRawResults + " results out of " + count + ":";
+                message = "Displaying top " + RepositoryIndex.MaxRawResults + " results out of " + count + ":";
             }
             else if (count == 0)
             {

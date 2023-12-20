@@ -611,7 +611,7 @@ function runSearch() {
     }
 
     setPageTitle(searchBox.value);
-    lastQuery = getUrl("/api/symbols/?symbol=" + escape(searchBox.value) + "&project=" + projectName, loadSearchResults);
+    lastQuery = getUrl("/api/symbols/?symbol=" + escape(searchBox.value) + "&repository=" + repositoryName, loadSearchResults);
 }
 
 function getUrl(url, callback) {

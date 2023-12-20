@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 var rootPath = Path.Combine(builder.Environment.ContentRootPath, "index");
 // HACK
 var htmlGeneratorFilePath = @"C:\Users\jaredpar\code\SourceBrowser\src\HtmlGenerator\bin\Debug\net8.0\HtmlGenerator.dll";
-builder.Services.AddSingleton(new ProjectManager(rootPath));
+builder.Services.AddSingleton(new RepositoryManager(rootPath));
 builder.Services.AddScoped(sp => new ProjectContentGenerator(rootPath, htmlGeneratorFilePath));
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

@@ -8,7 +8,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
 {
     public class IndexLoader
     {
-        public static void ReadIndex(ProjectIndex index, string rootPath)
+        public static void ReadIndex(RepositoryIndex index, string rootPath)
         {
             index.indexFinishedPopulating = false;
 
@@ -41,7 +41,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             }
         }
 
-        private static void ReadFilesCore(ProjectIndex index, string rootPath)
+        private static void ReadFilesCore(RepositoryIndex index, string rootPath)
         {
             using (Measure.Time("Read index"))
             {

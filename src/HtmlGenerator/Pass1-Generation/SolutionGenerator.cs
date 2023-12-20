@@ -416,7 +416,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 Log.Write(externalReference.Key, ConsoleColor.Magenta);
                 var solutionGenerator = new SolutionGenerator(
                     externalReference.Value,
-                    Paths.SolutionDestinationFolder,
+                    Paths.ContentDirectory,
                     pluginBlacklist: PluginBlacklist);
                 solutionGenerator.Generate(assemblyList);
             }

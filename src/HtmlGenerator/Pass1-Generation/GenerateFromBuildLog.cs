@@ -27,7 +27,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 {
                     Log.Write("TypeScript invocation", ConsoleColor.Magenta);
                     var typeScriptGenerator = new TypeScriptSupport();
-                    typeScriptGenerator.Generate(invocation.TypeScriptFiles, Paths.SolutionDestinationFolder);
+                    typeScriptGenerator.Generate(invocation.TypeScriptFiles, Paths.ContentDirectory);
                 }
                 else if (invocation.ProjectFilePath != "-")
                 {
@@ -37,7 +37,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                         invocation.CommandLineArguments,
                         invocation.OutputAssemblyPath,
                         invocation.SolutionRoot,
-                        Paths.SolutionDestinationFolder);
+                        Paths.ContentDirectory);
                     solutionGenerator.ServerPathMappings = serverPathMappings;
                     solutionGenerator.GlobalAssemblyList = assemblyNames;
                     solutionGenerator.Generate(processedAssemblyList, solutionExplorerRoot);
@@ -47,7 +47,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                     Log.Write(invocation.OutputAssemblyPath, ConsoleColor.Magenta);
                     var solutionGenerator = new SolutionGenerator(
                         invocation.OutputAssemblyPath,
-                        Paths.SolutionDestinationFolder);
+                        Paths.ContentDirectory);
                     solutionGenerator.Generate();
                 }
             }

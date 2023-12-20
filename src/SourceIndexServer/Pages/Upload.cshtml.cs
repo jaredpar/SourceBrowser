@@ -6,7 +6,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Pages;
 
 public class UploadModel : PageModel
 {
-    private ProjectManager Manager { get; }
+    private RepositoryManager Manager { get; }
     private ProjectContentGenerator Generator { get; }
 
     [BindProperty]
@@ -15,7 +15,7 @@ public class UploadModel : PageModel
     [BindProperty]
     public IFormFile Upload { get; set; }
 
-    public UploadModel(ProjectManager manager, ProjectContentGenerator generator)
+    public UploadModel(RepositoryManager manager, ProjectContentGenerator generator)
     {
         Manager = manager;
         Generator = generator;
@@ -25,7 +25,7 @@ public class UploadModel : PageModel
     {
         using var stream = Upload.OpenReadStream();
         var dirName = await Generator.Generate(stream);
-        Manager.AddProject(dirName);
+        Manager.AddRepository(dirName);
         return RedirectToPage("Index");
     }
 }

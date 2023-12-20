@@ -63,7 +63,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             }
 
             ProjectGenerator.GenerateReferencesDataFilesToAssembly(
-                Paths.SolutionDestinationFolder,
+                Paths.ContentDirectory,
                 Constants.TypeScriptFiles,
                 references);
 
@@ -158,7 +158,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
             url = Constants.TypeScriptFiles + @"\" + url;
 
-            url = Path.Combine(Paths.SolutionDestinationFolder, url);
+            url = Path.Combine(Paths.ContentDirectory, url);
             return url;
         }
 
@@ -178,7 +178,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
             var ranges = PrepareRanges(syntacticRanges, semanticRanges, text);
 
-            var relativePathToRoot = Paths.CalculateRelativePathToRoot(destinationHtmlFilePath, Paths.SolutionDestinationFolder);
+            var relativePathToRoot = Paths.CalculateRelativePathToRoot(destinationHtmlFilePath, Paths.ContentDirectory);
 
             var prefix = Markup.GetDocumentPrefix(Path.GetFileName(sourceFilePath), relativePathToRoot, lineCount, "ix");
             sb.Append(prefix);
@@ -396,7 +396,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
             var localRelativePath = destinationFilePath.Substring(
                 Path.Combine(
-                    Paths.SolutionDestinationFolder,
+                    Paths.ContentDirectory,
                     Constants.TypeScriptFiles).Length + 1);
             localRelativePath = localRelativePath.Substring(0, localRelativePath.Length - ".html".Length);
 
@@ -486,7 +486,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
             var localRelativePath = destinationHtmlFilePath.Substring(
                 Path.Combine(
-                    Paths.SolutionDestinationFolder,
+                    Paths.ContentDirectory,
                     Constants.TypeScriptFiles).Length);
 
             if (!string.IsNullOrEmpty(range.definitionSymbolId))
@@ -713,7 +713,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
         private string GetDisplayName(string destinationHtmlFilePath)
         {
             var result = Path.GetFileNameWithoutExtension(destinationHtmlFilePath);
-            var lengthOfPrefixToTrim = Paths.SolutionDestinationFolder.Length + Constants.TypeScriptFiles.Length + 2;
+            var lengthOfPrefixToTrim = Paths.ContentDirectory.Length + Constants.TypeScriptFiles.Length + 2;
             result = destinationHtmlFilePath.Substring(lengthOfPrefixToTrim, destinationHtmlFilePath.Length - lengthOfPrefixToTrim - 5); // strip ".html"
 
             return result;

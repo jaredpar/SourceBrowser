@@ -11,37 +11,37 @@ using Microsoft.SourceBrowser.Common;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer
 {
-    public sealed class ProjectManager : IDisposable
+    public sealed class RepositoryManager : IDisposable
     {
         private string RootPath { get; }
 
         /// <summary>
         /// This maintains a map of the directory name in the root to the project.
         /// </summary>
-        private ConcurrentDictionary<string, Project> map { get; } = new ConcurrentDictionary<string, Project>();
+        private ConcurrentDictionary<string, Repository> map { get; } = new ConcurrentDictionary<string, Repository>();
 
-        public ProjectManager(string rootPath)
+        public RepositoryManager(string rootPath)
         {
             RootPath = rootPath;
             foreach (var dir in Directory.EnumerateDirectories(rootPath))
             {
                 if (File.Exists(Path.Combine(dir, "Projects.txt")))
                 {
-                    var project = new Project(Path.GetFileName(dir), dir);
-                    map.TryAdd(project.Name, project);
+                    var repository = new Repository(Path.GetFileName(dir), dir);
+                    map.TryAdd(repository.Name, repository);
                 }
             }
         }
 
-        public bool TryGetProject(string projectName, [NotNullWhen(true)] out Project? project)
+        public bool TryGetRepository(string name, [NotNullWhen(true)] out Repository? project)
         {
-            return map.TryGetValue(projectName, out project);
+            return map.TryGetValue(name, out project);
         }
 
-        public void AddProject(string projectName)
+        public void AddRepository(string name)
         {
-            var project = new Project(projectName, Path.Combine(RootPath, projectName));
-            map.TryAdd(projectName, project);
+            var project = new Repository(name, Path.Combine(RootPath, name));
+            map.TryAdd(name, project);
         }
 
         public IEnumerable<string> GetProjectNames()
@@ -58,15 +58,15 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
         }
     }
 
-    public sealed class Project(string name, string rootPath)
+    public sealed class Repository(string name, string rootPath)
     {
         public string Name { get; } = name;
-        public ProjectIndex Index { get; } = new ProjectIndex(rootPath);
+        public RepositoryIndex Index { get; } = new RepositoryIndex(rootPath);
     }
 
 #nullable disable
 
-    public class ProjectIndex : IDisposable
+    public class RepositoryIndex : IDisposable
     {
         public const int MaxRawResults = 100;
 
@@ -78,12 +78,12 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             ContentPath = contentPath;
         }
 
-        public ProjectIndex()
+        public RepositoryIndex()
         {
 
         }
 
-        public ProjectIndex(string rootPath)
+        public RepositoryIndex(string rootPath)
         {
             ContentPath = rootPath;
             Task.Run(() => IndexLoader.ReadIndex(this, rootPath));
@@ -522,7 +522,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             this.projects = null;
         }
 
-        ~ProjectIndex()
+        ~RepositoryIndex()
         {
             Dispose();
         }
