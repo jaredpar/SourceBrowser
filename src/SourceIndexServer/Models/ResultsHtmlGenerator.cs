@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.SourceBrowser.SourceIndexServer.Models
+namespace Microsoft.SourceBrowser.SourceIndexServer
 {
     public class ResultsHtmlGenerator
     {

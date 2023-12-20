@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SourceBrowser.Common;
 
-namespace Microsoft.SourceBrowser.SourceIndexServer.Models
+namespace Microsoft.SourceBrowser.SourceIndexServer
 {
     public sealed class ProjectManager : IDisposable
     {

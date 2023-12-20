@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.SourceBrowser.SourceIndexServer.Models;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer.Pages;
 
@@ -26,7 +25,7 @@ public class UploadModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        throw new NotImplementedException():
+        throw new NotImplementedException();
         /*
         var file = Path.Combine(_environment.ContentRootPath, "uploads", Upload.FileName);
         using (var fileStream = new FileStream(file, FileMode.Create))

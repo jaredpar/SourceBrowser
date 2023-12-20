@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
-using Microsoft.SourceBrowser.SourceIndexServer.Models;
+using Microsoft.SourceBrowser.SourceIndexServer;
 
 var builder = WebApplication.CreateBuilder(args);
 

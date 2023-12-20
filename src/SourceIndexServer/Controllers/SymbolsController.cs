@@ -7,8 +7,8 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SourceBrowser.Common;
-using Microsoft.SourceBrowser.SourceIndexServer.Models;
-using ProjectIndex = Microsoft.SourceBrowser.SourceIndexServer.Models.ProjectIndex;
+using Microsoft.SourceBrowser.SourceIndexServer;
+using ProjectIndex = Microsoft.SourceBrowser.SourceIndexServer.ProjectIndex;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
 {

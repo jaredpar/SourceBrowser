@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.SourceBrowser.SourceIndexServer.Models
+namespace Microsoft.SourceBrowser.SourceIndexServer
 {
     public class Interpretation
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.SourceBrowser.Common;
 
-namespace Microsoft.SourceBrowser.SourceIndexServer.Models
+namespace Microsoft.SourceBrowser.SourceIndexServer
 {
     public class Query
     {

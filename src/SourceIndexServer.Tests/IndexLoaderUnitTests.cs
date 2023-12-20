@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.SourceBrowser.Common;
 using Microsoft.SourceBrowser.SourceIndexServer;
-using Microsoft.SourceBrowser.SourceIndexServer.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ProjectIndex = Microsoft.SourceBrowser.SourceIndexServer.Models.ProjectIndex;
 
 namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
 {

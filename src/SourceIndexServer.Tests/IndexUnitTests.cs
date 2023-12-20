@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.SourceBrowser.Common;
 using Microsoft.SourceBrowser.SourceIndexServer;
-using Microsoft.SourceBrowser.SourceIndexServer.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.SourceBrowser.HtmlGenerator.Tests
