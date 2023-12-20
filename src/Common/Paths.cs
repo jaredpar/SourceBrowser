@@ -10,7 +10,7 @@ namespace Microsoft.SourceBrowser.Common
         {
             get
             {
-                return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                return AppContext.BaseDirectory;
             }
         }
 

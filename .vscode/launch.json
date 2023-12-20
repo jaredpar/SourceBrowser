@@ -9,7 +9,12 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "dotnet: build",
-            "program": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net8.0/Microsoft.SourceBrowser.SourceIndexServer.exe",
+            "windows": {
+                "program": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net8.0/Microsoft.SourceBrowser.SourceIndexServer.exe",
+            },
+            "linux": {
+                "program": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net8.0/Microsoft.SourceBrowser.SourceIndexServer",
+            },
             "args": [],
             // "cwd": "c:/users/jaredpar/code/sourcebrowser/testSite",
             "cwd": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net8.0",
@@ -28,11 +33,11 @@
         {
             "name": "Html Generator",
             "request": "launch",
-            "type": "clr",
+            "type": "coreclr",
             "preLaunchTask": "dotnet: build",
-            "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net472/HtmlGenerator.exe",
+            "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator",
             "cwd": "${workspaceFolder}",
-            "args": ["../complog/build.complog", "/out:testSite" ]
+            "args": ["../complog/build.complog", "/out:testSite", "/force" ]
             // "cwd": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net6.0",
         }
     ]
