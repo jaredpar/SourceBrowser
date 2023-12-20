@@ -8,7 +8,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ManagedEsent" Version="1.9.4" />
     <PackageReference Include="Microsoft.Build" Version="16.6.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
