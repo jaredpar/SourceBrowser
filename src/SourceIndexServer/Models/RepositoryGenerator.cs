@@ -5,7 +5,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer;
 /// This class is responsible for generating the html / js pages for the given
 /// project onto disk.
 /// </summary>
-public sealed class ProjectContentGenerator(string rootPath, string htmlGeneratorFilePath)
+public sealed class RepositoryGenerator(string rootPath, string htmlGeneratorFilePath, ILogger<RepositoryGenerator> logger)
 {
     /// <summary>
     /// The path to the html generator tool that is used to generate the project
@@ -18,22 +18,12 @@ public sealed class ProjectContentGenerator(string rootPath, string htmlGenerato
     private string ScratchPath { get; } = Path.Combine(rootPath, ".scratch");
 
     /// <summary>
-    /// Generates the project content and returns the name of the directory it
-    /// was generated to
+    /// Generates the project content and returns the path that it was generated
+    /// to.
     /// </summary>
     public async Task<string> Generate(Stream complogStream)
     {
-        var name = Guid.NewGuid().ToString();
-        await Generate(complogStream, name);
-        return name;
-    }
-
-    /// <summary>
-    /// Generates the project content into the specified directory name in the 
-    /// root path.
-    /// </summary>
-    public async Task Generate(Stream complogStream, string dirName)
-    {
+        var dirName = Guid.NewGuid().ToString();
         var dirPath = Path.Combine(RootPath, dirName);
         if (Directory.Exists(dirPath))
         {
@@ -49,6 +39,8 @@ public sealed class ProjectContentGenerator(string rootPath, string htmlGenerato
         {
             File.Delete(complogFilePath);
         }
+
+        return dirPath;
     }
 
     private async Task RunHtmlGenerator(string complogFilePath, string destDirectory)
@@ -61,10 +53,12 @@ public sealed class ProjectContentGenerator(string rootPath, string htmlGenerato
             $"/out:{destDirectory}"
         ];
 
+        logger.LogInformation($"Generating {complogFilePath} to {destDirectory}");
         var result = await ProcessUtil.RunAsync("dotnet", args, workingDirectory: RootPath);
         if (!result.Succeeded)
         {
-            throw new Exception($"Html generator failed: {result.StandardOut}");
+            logger.LogError($"Html generator failed: {result.StandardOut} {result.StandardError}");
+            throw new Exception($"Html generator failed");
         }
     }
 

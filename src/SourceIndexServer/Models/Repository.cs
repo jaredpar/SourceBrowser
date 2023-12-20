@@ -23,6 +23,7 @@ public sealed class RepositoryManager : IDisposable
     public RepositoryManager(string rootPath)
     {
         RootPath = rootPath;
+        Directory.CreateDirectory(rootPath);
         foreach (var dir in Directory.EnumerateDirectories(rootPath))
         {
             if (TryParseRepository(dir, out var repository))
