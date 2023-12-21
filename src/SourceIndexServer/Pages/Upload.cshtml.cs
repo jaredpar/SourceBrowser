@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Build.Evaluation;
@@ -32,15 +33,29 @@ public class UploadModel : PageModel
             return Page();
         }
 
+        if (!Regex.IsMatch(RepositoryName, @"[a-z0-9-]+"))
+        {
+            ErrorMessage = "Repository name must be letters, numbers and dashes only";
+            return Page();
+        }
+
         if (Upload is null || Path.GetExtension(Upload.FileName) != ".complog")
         {
             ErrorMessage = "Must provide a compiler log file";
             return Page();
         }
 
-        using var stream = Upload.OpenReadStream();
-        var dirName = await Generator.Generate(stream);
-        Manager.AddRepository(dirName);
-        return RedirectToPage("Index");
+        try
+        {
+            using var stream = Upload.OpenReadStream();
+            var dir = await Generator.Generate(RepositoryName, stream);
+            Manager.AddOrUpdateRepository(RepositoryName, dir);
+            return Redirect($"/{RepositoryName}/index.html");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.ToString();
+            return Page();
+        }
     }
 }

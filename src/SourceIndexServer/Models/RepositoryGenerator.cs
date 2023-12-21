@@ -3,12 +3,12 @@ namespace Microsoft.SourceBrowser.SourceIndexServer;
 
 /// <summary>
 /// This class is responsible for generating the html / js pages for the given
-/// project onto disk.
+/// repository onto disk.
 /// </summary>
 public sealed class RepositoryGenerator(string rootPath, string htmlGeneratorFilePath, ILogger<RepositoryGenerator> logger)
 {
     /// <summary>
-    /// The path to the html generator tool that is used to generate the project
+    /// The path to the html generator tool that is used to generate the repository
     /// content.
     /// </summary>
     public string HtmlGeneratorFilePath { get; } = htmlGeneratorFilePath;
@@ -18,10 +18,10 @@ public sealed class RepositoryGenerator(string rootPath, string htmlGeneratorFil
     private string ScratchPath { get; } = Path.Combine(rootPath, ".scratch");
 
     /// <summary>
-    /// Generates the project content and returns the path that it was generated
+    /// Generates the repository content and returns the path that it was generated
     /// to.
     /// </summary>
-    public async Task<string> Generate(Stream complogStream)
+    public async Task<string> Generate(string repositoryName, Stream complogStream)
     {
         var dirName = Guid.NewGuid().ToString();
         var dirPath = Path.Combine(RootPath, dirName);
@@ -33,7 +33,7 @@ public sealed class RepositoryGenerator(string rootPath, string htmlGeneratorFil
         var complogFilePath = await SaveToScratch(complogStream);
         try
         {
-            await RunHtmlGenerator(complogFilePath, dirPath);
+            await RunHtmlGenerator(repositoryName, complogFilePath, dirPath);
         }
         finally
         {
@@ -43,17 +43,18 @@ public sealed class RepositoryGenerator(string rootPath, string htmlGeneratorFil
         return dirPath;
     }
 
-    private async Task RunHtmlGenerator(string complogFilePath, string destDirectory)
+    private async Task RunHtmlGenerator(string repositoryName, string complogFilePath, string destDirectory)
     {
         string[] args =
         [
             "exec",
             HtmlGeneratorFilePath,
             complogFilePath,
+            $"/name:{repositoryName}",
             $"/out:{destDirectory}"
         ];
 
-        logger.LogInformation($"Generating {complogFilePath} to {destDirectory}");
+        logger.LogInformation($"Generating {complogFilePath} to {destDirectory} with name {repositoryName}");
         var result = await ProcessUtil.RunAsync("dotnet", args, workingDirectory: RootPath);
         if (!result.Succeeded)
         {

@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SourceBrowser.Common;
 
@@ -24,13 +25,7 @@ public sealed class RepositoryManager : IDisposable
     {
         RootPath = rootPath;
         Directory.CreateDirectory(rootPath);
-        foreach (var dir in Directory.EnumerateDirectories(rootPath))
-        {
-            if (TryParseRepository(dir, out var repository))
-            {
-                map[repository.Name] = repository;
-            }
-        }
+        LoadRepositoryMap();
     }
 
     public bool TryGetRepository(string name, [NotNullWhen(true)] out Repository? project)
@@ -38,13 +33,32 @@ public sealed class RepositoryManager : IDisposable
         return map.TryGetValue(name, out project);
     }
 
-    public void AddRepository(string directory)
+    public void AddOrUpdateRepository(string repositoryName, string directory)
     {
-        if (!TryParseRepository(directory, out var repository))
+        var repository = new Repository(repositoryName, directory);
+        Repository? existing = null;
+        map.AddOrUpdate(
+            repository.Name,
+            repository,
+            (_, e) =>
+            {
+                existing = e;
+                return repository;
+            });
+        if (existing is not null)
         {
-            throw new ArgumentException($"Directory {directory} is not a valid repository");
+            existing.Index.Dispose();
+
+            try
+            {
+                SaveRepositoryMap();
+                Directory.Delete(existing.Directory, recursive: true);
+            }
+            catch
+            {
+                // Nothing to do 
+            }
         }
-        map[repository.Name] = repository;
     }
 
     public IEnumerable<string> GetRepositoryNames() => map.Keys;
@@ -54,6 +68,40 @@ public sealed class RepositoryManager : IDisposable
         foreach (var project in map.Values)
         {
             project.Index.Dispose();
+        }
+    }
+
+    private void LoadRepositoryMap()
+    {
+        var filePath = Path.Combine(RootPath, "map.txt");
+        if (File.Exists(filePath))
+        {
+            using var reader = new StreamReader(filePath, Encoding.UTF8);
+            while (reader.ReadLine() is string line)
+            {
+                var parts = line.Split(':', count: 2, StringSplitOptions.RemoveEmptyEntries);
+                var repository = new Repository(parts[0], parts[1]);
+                map[repository.Name] = repository;
+            }
+        }
+        else
+        {
+            foreach (var dir in Directory.EnumerateDirectories(RootPath))
+            {
+                if (TryParseRepository(dir, out var repository))
+                {
+                    map[repository.Name] = repository;
+                }
+            }
+        }
+    }
+
+    private void SaveRepositoryMap()
+    {
+        using var writer = new StreamWriter(Path.Combine(RootPath, "map.txt"), append: false, Encoding.UTF8);
+        foreach (var pair in this.map)
+        {
+            writer.WriteLine($"{pair.Key}:{pair.Value.DirectoryName}");
         }
     }
 
@@ -81,9 +129,10 @@ public sealed class RepositoryManager : IDisposable
     }
 }
 
-public sealed class Repository(string name, string rootPath)
+public sealed class Repository(string name, string directory)
 {
     public string Name { get; } = name;
-    public string DirectoryName { get; } = Path.GetFileName(rootPath);
-    public RepositoryIndex Index { get; } = new RepositoryIndex(rootPath);
+    public string Directory { get; } = directory;
+    public string DirectoryName { get; } = Path.GetFileName(directory);
+    public RepositoryIndex Index { get; } = new RepositoryIndex(directory);
 }
