@@ -1,0 +1,22 @@
+@page
+@model AdminModel
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<h1>Admin Operations</h1>
+
+<h2>Delete Repositories</h2>
+<p>Delete repositories or storage items off of disk</p>
+<form method="post" enctype="multipart/form-data">
+    @foreach (var name in Model.Manager.GetRepositoryNames())
+    {
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="@name" value="@name" name="repo-@name">
+            <label class="form-check-label" for="@name">@name</label>
+        </div>
+    }
+    <div>
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </div>
+</form>

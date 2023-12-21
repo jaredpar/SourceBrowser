@@ -61,6 +61,24 @@ public sealed class RepositoryManager : IDisposable
         }
     }
 
+    public void DeleteRangeAsync(IEnumerable<string> repositoryNames)
+    {
+        try
+        {
+            foreach (var name in repositoryNames)
+            {
+                if (map.TryRemove(name, out var repository))
+                {
+                    Directory.Delete(repository.Directory, recursive: true);
+                }
+            }
+        }
+        finally
+        {
+            SaveRepositoryMap();
+        }
+    }
+
     public IEnumerable<string> GetRepositoryNames() => map.Keys;
 
     public void Dispose()
