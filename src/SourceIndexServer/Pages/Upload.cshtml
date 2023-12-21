@@ -1,19 +1,29 @@
 @page
 @model UploadModel
-<title>Upload Compiler Log</title>
+@{
+    ViewData["Title"] = "Upload Compiler Log";
+}
 
-<h2>Create repository by uploading a compiler log</h2>
+<h2>Upload Repository</h2>
+<p>Upload a compiler log to create or update a code repository</p>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
 
 <form method="post" enctype="multipart/form-data">
-    <div>
-        <label asp-for="ProjectName">Project Name</label>
-        <input type="text" asp-for="ProjectName" />
+    <div class="form-group">
+        <label asp-for="RepositoryName">Repository Name</label>
+        <input type="text" class="form-control" asp-for="RepositoryName">
     </div>
-    <div>
+    <div class="form-group">
         <label asp-for="Upload">Compiler Log</label>
-        <input type="file" asp-for="Upload" />
+        <input type="file" class="form-control" asp-for="Upload">
     </div>
     <div>
-        <input type="submit" />
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
     </div>
 </form>
