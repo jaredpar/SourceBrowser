@@ -19,4 +19,5 @@ RUN dotnet publish -c Release -o out/web src/SourceIndexServer/SourceIndexServer
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 WORKDIR /App
 COPY --from=build-env /App/out .
-ENTRYPOINT ["dotnet", "exec", "web/Microsoft.SourceBrowser.SourceIndexServer.dll"]
+WORKDIR /App/web
+ENTRYPOINT ["dotnet", "exec", "Microsoft.SourceBrowser.SourceIndexServer.dll"]

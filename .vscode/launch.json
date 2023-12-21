@@ -36,14 +36,16 @@
             "type": "coreclr",
             "preLaunchTask": "dotnet: build",
             "windows": {
-                "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator.dll"
+                "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator.dll",
+                "args": ["c:/users/jaredpar/temp/razor/build.complog", "/out:testSite", "/force", "/projectName:razor" ]
             },
             "linux": {
-                "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator"
+                "program": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator",
+                "args": ["/mnt/c/Users/jaredpar/temp/console/msbuild.complog", "/out:testSite", "/force", "/projectName:complog" ]
             },
             "cwd": "${workspaceFolder}",
             // "args": ["../complog/build.complog", "/out:testSite", "/force", "/projectName:complog" ]
-            "args": ["/mnt/c/Users/jaredpar/temp/console/msbuild.complog", "/out:testSite", "/force", "/projectName:complog" ]
+            "args": []
             // "cwd": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net6.0",
         }
     ]

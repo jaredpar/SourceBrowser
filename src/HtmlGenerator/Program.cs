@@ -118,7 +118,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
             if (filePath.EndsWith(".complog", System.StringComparison.OrdinalIgnoreCase))
             {
-                var reader = Basic.CompilerLog.Util.CompilerLogReader.Create(filePath);
+                var reader = CompilerLogReader.Create(filePath, BasicAnalyzerHostOptions.None);
                 return reader
                     .ReadAllCompilerCalls()
                     .Select(x => Path.GetFileNameWithoutExtension(x.ProjectFileName))
@@ -214,7 +214,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
             static string GetSolutionFolderFromCompilerLog(string complogFilePath)
             {
-                using var reader = CompilerLogReader.Create(complogFilePath);
+                using var reader = CompilerLogReader.Create(complogFilePath, BasicAnalyzerHostOptions.None);
                 string path = null;
                 foreach (var cc in reader.ReadAllCompilerCalls(x => x.Kind != CompilerCallKind.Satellite))
                 {
