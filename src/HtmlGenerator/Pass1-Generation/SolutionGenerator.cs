@@ -40,9 +40,10 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             Federation federation = null,
             IReadOnlyDictionary<string, string> serverPathMappings = null,
             IEnumerable<string> pluginBlacklist = null,
-            bool doNotIncludeReferencedProjects = false)
+            bool doNotIncludeReferencedProjects = false,
+            string solutionSourceFolder = null)
         {
-            this.SolutionSourceFolder = Path.GetDirectoryName(solutionFilePath);
+            this.SolutionSourceFolder = solutionSourceFolder ?? Path.GetDirectoryName(solutionFilePath);
             this.SolutionDestinationFolder = solutionDestinationFolder;
             this.ProjectFilePath = solutionFilePath;
             this.ServerPathMappings = serverPathMappings;

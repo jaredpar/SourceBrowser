@@ -386,6 +386,14 @@ function rewriteSolutionExplorerLink(link) {
         var assembly = getAssemblyFromExplorerFile(link);
         if (assembly) {
             if (extension != "ts") {
+
+                // The path is already "/repository/example.cs". Need to strip off the repository cause setting
+                // location.href will replace the last part of the path, not the entire path.
+                var index = pathname.lastIndexOf('/');
+                if (index >= 0) {
+                    pathname = pathname.slice(index);
+                }
+
                 link.href = assembly + pathname;
             }
         }

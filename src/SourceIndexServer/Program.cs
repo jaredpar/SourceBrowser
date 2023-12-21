@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Features;
+﻿using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.SourceBrowser.SourceIndexServer;
@@ -7,9 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 var rootPath = Path.Combine(builder.Environment.ContentRootPath, "index");
 // HACK
-var htmlGeneratorFilePath = Util.InDocker
-    ? @"/App/generator/HtmlGenerator.dll"
-    : @"C:\Users\jaredpar\code\SourceBrowser\src\HtmlGenerator\bin\Debug\net8.0\HtmlGenerator.dll";
+var htmlGeneratorFilePath = (Util.InDocker, RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) switch
+{
+    (true, _) => @"/App/generator/HtmlGenerator.dll",
+    (false, true) => @"C:\Users\jaredpar\code\SourceBrowser\src\HtmlGenerator\bin\Debug\net8.0\HtmlGenerator.dll",
+    (false, false) =>"/home/jaredpar/code/SourceBrowser/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator.dll",
+};
+
 builder.Services.AddSingleton(new RepositoryManager(rootPath));
 builder.Services.AddSingleton<RepositoryUrlRewriter>();
 builder.Services.AddScoped(sp => new RepositoryGenerator(rootPath, htmlGeneratorFilePath, sp.GetRequiredService<ILogger<RepositoryGenerator>>()));

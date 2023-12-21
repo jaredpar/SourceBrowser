@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Basic.CompilerLog.Util;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.SourceBrowser.Common;
@@ -21,6 +22,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
             if (options.Projects.Count == 0)
             {
+                Console.WriteLine("No projects specified.");
                 PrintUsage();
                 return;
             }
@@ -114,8 +116,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 return invocations.Select(i => Path.GetFileNameWithoutExtension(i.Parsed.OutputFileName)).ToArray();
             }
 
-            if (filePath.EndsWith(".complog", System.StringComparison.OrdinalIgnoreCase) ||
-                filePath.EndsWith(".compilerlog", System.StringComparison.OrdinalIgnoreCase))
+            if (filePath.EndsWith(".complog", System.StringComparison.OrdinalIgnoreCase))
             {
                 var reader = Basic.CompilerLog.Util.CompilerLogReader.Create(filePath);
                 return reader
@@ -185,6 +186,12 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                         continue;
                     }
 
+                    string solutionSourceFolder = null;
+                    if (path.EndsWith(".complog", StringComparison.OrdinalIgnoreCase))
+                    {
+                        solutionSourceFolder = GetSolutionFolderFromCompilerLog(path);
+                    }
+
                     using (var solutionGenerator = new SolutionGenerator(
                         path,
                         Paths.ContentDirectory,
@@ -192,7 +199,8 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                         federation: federation,
                         serverPathMappings: serverPathMappings,
                         pluginBlacklist: pluginBlacklist,
-                        doNotIncludeReferencedProjects: doNotIncludeReferencedProjects))
+                        doNotIncludeReferencedProjects: doNotIncludeReferencedProjects,
+                        solutionSourceFolder: solutionSourceFolder))
                     {
                         solutionGenerator.GlobalAssemblyList = assemblyNames;
                         solutionGenerator.Generate(processedAssemblyList, solutionFolder);
@@ -202,6 +210,39 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
+            }
+
+            static string GetSolutionFolderFromCompilerLog(string complogFilePath)
+            {
+                using var reader = CompilerLogReader.Create(complogFilePath);
+                string path = null;
+                foreach (var cc in reader.ReadAllCompilerCalls(x => x.Kind != CompilerCallKind.Satellite))
+                {
+                    var projectPath = cc.ProjectDirectory;
+                    if (path is null)
+                    {
+                        path = projectPath;
+                    }
+                    else
+                    {
+                        path = CommonPrefix(path, projectPath) ?? projectPath;
+                    }
+                }
+
+                return path;
+
+                static string CommonPrefix(string str1, string str2)
+                {
+                    int minLength = Math.Min(str1.Length, str2.Length);
+                    for (int i = 0; i < minLength; i++)
+                    {
+                        if (str1[i] != str2[i])
+                        {
+                            return str1.Substring(0, i);
+                        }
+                    }
+                    return str1.Substring(0, minLength);
+                }
             }
         }
 

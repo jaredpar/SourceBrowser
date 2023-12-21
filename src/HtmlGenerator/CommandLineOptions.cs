@@ -233,10 +233,12 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 
                 try
                 {
+                    Console.WriteLine("Adding project: " + arg);
                     AddProject(projects, arg);
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                     Log.Write("Exception: " + ex, ConsoleColor.Red);
                 }
             }
@@ -287,6 +289,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
             }
             else
             {
+                Console.WriteLine("Project not found or not supported: " + path);
                 Log.Exception("Project not found or not supported: " + path, isSevere: false);
             }
         }
