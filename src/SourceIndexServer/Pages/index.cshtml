@@ -1,14 +1,15 @@
 ﻿@page
 @model IndexModel
 
-<h3>Projects</h3>
-<span>
-  <ul>
-    @foreach (var name in Model.Manager.GetRepositoryNames())
-    {
-      <li><a href="/@name/index.html">@name</a></li>
-    }
-  </ul>
-</span>
+<h2>Repositories</h2>
+<p>Choose a repository to browse the code for</p>
+<div class="list-group">
+  @foreach (var name in Model.Manager.GetRepositoryNames())
+  {
+    <a class="list-group-item list-group-item-action" href="/@name/index.html">@name</a>
+  }
+</div>
 
-<span><a href="/upload">Upload a new repository</a></span>
+<div class="mt-3">
+  <a href="/upload">Upload a new repository</a>
+</div>
