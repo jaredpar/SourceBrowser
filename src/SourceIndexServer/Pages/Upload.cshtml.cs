@@ -48,8 +48,8 @@ public class UploadModel : PageModel
         try
         {
             using var stream = Upload.OpenReadStream();
-            var dir = await Generator.Generate(RepositoryName, stream);
-            Manager.AddOrUpdateRepository(RepositoryName, dir);
+            var indexName = await Generator.Generate(RepositoryName, stream);
+            Manager.AddOrUpdateRepository(RepositoryName, indexName);
             return Redirect($"/{RepositoryName}/index.html");
         }
         catch (Exception ex)

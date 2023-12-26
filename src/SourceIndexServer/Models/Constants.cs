@@ -10,5 +10,7 @@
         public static readonly string MSBuildTasksAssembly = "MSBuildTasks";
         public static readonly string ReferencesFileName = "R";
         public static readonly string GuidAssembly = "GuidAssembly";
+
+        public static readonly string KeyAzdoToken = "TokenAzdo";
     }
 }

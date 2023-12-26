@@ -77,7 +77,8 @@ public sealed class RepositoryManager : IDisposable
     public Repository AddOrUpdateRepository(string name, string indexName)
     {
         Repository? oldRepository = null;
-        Repository newRepository = new Repository(name, indexName);
+        Repository newRepository = new Repository(Path.Combine(RepositoryPaths, name), Path.Combine(IndexPath, indexName));
+        Directory.CreateDirectory(newRepository.RepositoryPath);
         lock (_guard)
         {
             _ = _repositoryMap.TryGetValue(name, out oldRepository);

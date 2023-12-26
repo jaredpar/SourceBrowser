@@ -18,7 +18,7 @@ public sealed class RepositoryGenerator(RepositoryManager repositoryManager, str
     private string ScratchPath { get; } = Path.Combine(repositoryManager.RootPath, ".scratch");
 
     /// <summary>
-    /// Generates the repository content and returns the path that it was generated
+    /// Generates the repository content and returns the index name that it was generated
     /// to.
     /// </summary>
     public async Task<string> Generate(string repositoryName, Stream complogStream)
@@ -40,7 +40,7 @@ public sealed class RepositoryGenerator(RepositoryManager repositoryManager, str
             File.Delete(complogFilePath);
         }
 
-        return dirPath;
+        return dirName;
     }
 
     private async Task RunHtmlGenerator(string repositoryName, string complogFilePath, string destDirectory)

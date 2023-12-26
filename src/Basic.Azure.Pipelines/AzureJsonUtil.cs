@@ -16,11 +16,24 @@ namespace Basic.Azure.Pipelines
 {
     public static class AzureJsonUtil
     {
+        public static readonly JsonSerializerOptions Options = new JsonSerializerOptions()
+        {
+            PropertyNameCaseInsensitive = true,
+            AllowTrailingCommas = true,
+        };
+
         public static T[] GetArray<T>(string json)
         {
             using var doc = JsonDocument.Parse(json);
             doc.RootElement.TryGetProperty("value", out var value);
-            return value.Deserialize<T[]>()!;
+            var list = new List<T>();
+            foreach (var elem in value.EnumerateArray())
+            {
+                T e = JsonSerializer.Deserialize<T>(elem, Options)!;
+                list.Add(e);
+            }
+
+            return list.ToArray();
         }
 
         public static T GetObject<T>(string json) => JsonSerializer.Deserialize<T>(json)!;
