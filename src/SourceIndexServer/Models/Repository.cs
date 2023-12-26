@@ -1,156 +1,153 @@
 ﻿#nullable enable
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.SourceBrowser.Common;
+using System.Text.Json;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer;
 
 public sealed class RepositoryManager : IDisposable
 {
-    private string RootPath { get; }
+    private readonly object _guard = new object();
+    private readonly Dictionary<string, Repository> _repositoryMap = new Dictionary<string, Repository>();
 
     /// <summary>
-    /// This maintains a map of the repository name to the <see cref="Repository"/> 
+    /// This is the root path for all of the on disk data
     /// </summary>
-    private ConcurrentDictionary<string, Repository> map { get; } = new ConcurrentDictionary<string, Repository>();
+    public string RootPath { get; }
+
+    public string IndexPath { get; }
+
+    public string RepositoryPaths { get; } 
 
     public RepositoryManager(string rootPath)
     {
         RootPath = rootPath;
-        Directory.CreateDirectory(rootPath);
-        LoadRepositoryMap();
+        IndexPath = Path.Combine(rootPath, "index");
+        RepositoryPaths = Path.Combine(rootPath, "repositories");
+        Directory.CreateDirectory(IndexPath);
+        Directory.CreateDirectory(RepositoryPaths);
+        LoadRepositoryMapNoLock();
+
+        void LoadRepositoryMapNoLock()
+        {
+            foreach (var dir in Directory.EnumerateDirectories(RepositoryPaths))
+            {
+                if (TryParseRepository(dir, out var repoIndexPath))
+                {
+                    var repository = new Repository(dir, repoIndexPath);
+                    _repositoryMap[repository.Name] = repository;
+                }
+            }
+        }
+
+        bool TryParseRepository(string repoPath, [NotNullWhen(true)] out string? repoIndexPath)
+        {
+            try
+            {
+                var index = Path.Combine(repoPath, "index.txt");
+                if (!File.Exists(index))
+                {
+                    var indexName = File.ReadAllText(index).Trim();
+                    repoIndexPath = Path.Combine(IndexPath, indexName);
+                    if (Directory.Exists(repoIndexPath))
+                    {
+                        return true;
+                    }
+                }
+
+                repoIndexPath = null;
+                return false;
+            }
+            catch (Exception)
+            {
+                repoIndexPath = null;
+                return false;
+            }
+        }
     }
 
     public bool TryGetRepository(string name, [NotNullWhen(true)] out Repository? project)
     {
-        return map.TryGetValue(name, out project);
+        lock (_guard)
+        {
+            return _repositoryMap.TryGetValue(name, out project);
+        }
     }
 
-    public void AddOrUpdateRepository(string repositoryName, string directory)
+    public Repository AddOrUpdateRepository(string name, string indexName)
     {
-        var repository = new Repository(repositoryName, directory);
-        Repository? existing = null;
-        map.AddOrUpdate(
-            repository.Name,
-            repository,
-            (_, e) =>
-            {
-                existing = e;
-                return repository;
-            });
-        if (existing is not null)
+        Repository? oldRepository = null;
+        Repository newRepository = new Repository(name, indexName);
+        lock (_guard)
         {
-            existing.Index.Dispose();
+            _ = _repositoryMap.TryGetValue(name, out oldRepository);
+            _repositoryMap[name] = newRepository;
+            File.WriteAllLines(
+                Path.Combine(newRepository.RepositoryPath, "index.txt"),
+                [indexName]);
+        }
 
-            try
-            {
-                SaveRepositoryMap();
-                Directory.Delete(existing.Directory, recursive: true);
-            }
-            catch
-            {
-                // Nothing to do 
-            }
+        // HACK: make async
+        if (oldRepository is not null)
+        {
+            DeleteNoLock(oldRepository);
+        }
+
+        return newRepository;
+    }
+
+    private void DeleteNoLock(Repository repository)
+    {
+        repository.RepositoryIndex.Dispose();
+        try
+        {
+            Directory.Delete(repository.RepositoryPath, recursive: true);
+        }
+        catch (Exception)
+        {
+            // Nothing to do if it fails
         }
     }
 
     public void DeleteRangeAsync(IEnumerable<string> repositoryNames)
     {
-        try
+        lock (_guard)
         {
             foreach (var name in repositoryNames)
             {
-                if (map.TryRemove(name, out var repository))
+                if (_repositoryMap.Remove(name, out var repository))
                 {
-                    Directory.Delete(repository.Directory, recursive: true);
+                    DeleteNoLock(repository);
                 }
             }
         }
-        finally
-        {
-            SaveRepositoryMap();
-        }
     }
 
-    public IEnumerable<string> GetRepositoryNames() => map.Keys;
+    public IEnumerable<string> GetRepositoryNames()
+    {
+        lock(_guard) 
+        {
+            return _repositoryMap.Keys.ToArray();
+        }
+    }
 
     public void Dispose()
     {
-        foreach (var project in map.Values)
+        lock (_guard)
         {
-            project.Index.Dispose();
-        }
-    }
-
-    private void LoadRepositoryMap()
-    {
-        var filePath = Path.Combine(RootPath, "map.txt");
-        if (File.Exists(filePath))
-        {
-            using var reader = new StreamReader(filePath, Encoding.UTF8);
-            while (reader.ReadLine() is string line)
+            foreach (var repository in _repositoryMap.Values)
             {
-                var parts = line.Split(':', count: 2, StringSplitOptions.RemoveEmptyEntries);
-                var repository = new Repository(parts[0], parts[1]);
-                map[repository.Name] = repository;
+                repository.RepositoryIndex.Dispose();
             }
         }
-        else
-        {
-            foreach (var dir in Directory.EnumerateDirectories(RootPath))
-            {
-                if (TryParseRepository(dir, out var repository))
-                {
-                    map[repository.Name] = repository;
-                }
-            }
-        }
-    }
-
-    private void SaveRepositoryMap()
-    {
-        using var writer = new StreamWriter(Path.Combine(RootPath, "map.txt"), append: false, Encoding.UTF8);
-        foreach (var pair in this.map)
-        {
-            writer.WriteLine($"{pair.Key}:{pair.Value.DirectoryName}");
-        }
-    }
-
-    private static bool TryParseRepository(string dir, [NotNullWhen(true)] out Repository? repository)
-    {
-        if (!File.Exists(Path.Combine(dir, "Projects.txt")))
-        {
-            repository = null;
-            return false;
-        }
-
-        var nameFilePath = Path.Combine(dir, "name.txt");
-        string name;
-        if (File.Exists(nameFilePath))
-        {
-            name = File.ReadAllText(nameFilePath).Trim();
-        }
-        else
-        {
-            name = Path.GetFileName(dir);
-        }
-
-        repository = new Repository(name, dir);
-        return true;
     }
 }
 
-public sealed class Repository(string name, string directory)
+public sealed class Repository(string repositoryPath, string indexPath)
 {
-    public string Name { get; } = name;
-    public string Directory { get; } = directory;
-    public string DirectoryName { get; } = Path.GetFileName(directory);
-    public RepositoryIndex Index { get; } = new RepositoryIndex(directory);
+    public string Name { get; } = Path.GetFileName(repositoryPath);
+    public string RepositoryPath { get; } = repositoryPath;
+    public string IndexName { get; } = Path.GetFileName(indexPath);
+    public string IndexPath { get; } = indexPath;
+    public RepositoryIndex RepositoryIndex { get; } = new RepositoryIndex(indexPath);
 }

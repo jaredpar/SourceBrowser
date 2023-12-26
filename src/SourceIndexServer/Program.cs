@@ -6,7 +6,8 @@ using Microsoft.SourceBrowser.SourceIndexServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var rootPath = Path.Combine(builder.Environment.ContentRootPath, "index");
+var rootPath = Path.Combine(builder.Environment.ContentRootPath, ".data");
+
 // HACK
 var htmlGeneratorFilePath = (Util.InDocker, RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) switch
 {
@@ -17,7 +18,7 @@ var htmlGeneratorFilePath = (Util.InDocker, RuntimeInformation.IsOSPlatform(OSPl
 
 builder.Services.AddSingleton(new RepositoryManager(rootPath));
 builder.Services.AddSingleton<RepositoryUrlRewriter>();
-builder.Services.AddScoped(sp => new RepositoryGenerator(rootPath, htmlGeneratorFilePath, sp.GetRequiredService<ILogger<RepositoryGenerator>>()));
+builder.Services.AddScoped(sp => new RepositoryGenerator(sp.GetRequiredService<RepositoryManager>(), htmlGeneratorFilePath, sp.GetRequiredService<ILogger<RepositoryGenerator>>()));
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
@@ -39,7 +40,9 @@ if (builder.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-var provider = new PhysicalFileProvider(rootPath, ExclusionFilters.Sensitive & ~ExclusionFilters.DotPrefixed);
+var provider = new PhysicalFileProvider(
+    app.Services.GetRequiredService<RepositoryManager>().IndexPath,
+    ExclusionFilters.Sensitive & ~ExclusionFilters.DotPrefixed);
 app.UseRepositoryUrlRewriter();
 app.UseDefaultFiles();
 

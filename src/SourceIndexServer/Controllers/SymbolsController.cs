@@ -169,8 +169,8 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
                     return Markup.Note($"Project '{repository}' not found.");
                 }
 
-                var query = p.Index.Get(symbol);
-                var result = new ResultsHtmlGenerator(repository, query).Generate(sw, p.Index, usageStats);
+                var query = p.RepositoryIndex.Get(symbol);
+                var result = new ResultsHtmlGenerator(repository, query).Generate(sw, p.RepositoryIndex, usageStats);
                 return result;
             }
         }

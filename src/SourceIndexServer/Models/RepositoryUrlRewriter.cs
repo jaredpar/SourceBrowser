@@ -23,7 +23,7 @@ public sealed class RepositoryUrlRewriter : IMiddleware
                 var repositoryName = path.Substring(1, index - 1);
                 if (Manager.TryGetRepository(repositoryName, out var repository))
                 {
-                    var newPath = $"/{repository.DirectoryName}/{path.Substring(index + 1)}";
+                    var newPath = $"/{repository.IndexName}/{path.Substring(index + 1)}";
                     context.Request.Path = newPath;
                 }
             }
