@@ -23,6 +23,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\Directory.Build.props = src\Directory.Build.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F0777A96-9F6F-4EFB-BE07-F86AF53DDDF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basic.Azure.Pipelines", "src\Basic.Azure.Pipelines\Basic.Azure.Pipelines.csproj", "{836218AE-EFFB-48F4-85CE-3E86DC3DDD68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,11 +61,18 @@ Global
 		{37B5A89F-5436-45BE-B782-C476086A6AF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37B5A89F-5436-45BE-B782-C476086A6AF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37B5A89F-5436-45BE-B782-C476086A6AF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{836218AE-EFFB-48F4-85CE-3E86DC3DDD68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{836218AE-EFFB-48F4-85CE-3E86DC3DDD68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{836218AE-EFFB-48F4-85CE-3E86DC3DDD68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{836218AE-EFFB-48F4-85CE-3E86DC3DDD68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {29F20132-2B2E-4FAE-86AF-812EE1C3363F}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{836218AE-EFFB-48F4-85CE-3E86DC3DDD68} = {F0777A96-9F6F-4EFB-BE07-F86AF53DDDF4}
 	EndGlobalSection
 EndGlobal
