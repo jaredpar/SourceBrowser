@@ -41,7 +41,7 @@ public sealed class RepositoryUrlRewriter : IMiddleware
                         "/favicon.ico" => true,
                         "/header.html" => true,
                         "/overview.html" => true,
-                        "/style.css" => true,
+                        "/styles.css" => true,
                         "/scripts.js" => true,
                         _ => false,
                     };

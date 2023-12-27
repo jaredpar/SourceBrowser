@@ -12,5 +12,6 @@
         public static readonly string GuidAssembly = "GuidAssembly";
 
         public static readonly string KeyAzdoToken = "TokenAzdo";
+        public static readonly string KeyHtmlGeneratorFilePath = "FilePathHtmlGenerator";
     }
 }
