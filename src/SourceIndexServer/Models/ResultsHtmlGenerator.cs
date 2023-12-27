@@ -10,11 +10,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
     {
         private readonly Query query;
         private readonly StringBuilder sb = new StringBuilder();
-        private readonly string project;
 
-        public ResultsHtmlGenerator(string project, Query query)
+        public ResultsHtmlGenerator(Query query)
         {
-            this.project = project;
             this.query = query;
         }
 
@@ -25,7 +23,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             if (query.HasDiagnostics)
             {
                 sb.AppendLine(Markup.Note(query.Diagnostics));
-                AppendAffiliateLinks(query);
+                AppendAffiliateLinks(query, index);
                 return sb.ToString();
             }
 
@@ -41,7 +39,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
                     sb.AppendLine(Markup.Note("No results found"));
                 }
 
-                AppendAffiliateLinks(query);
+                AppendAffiliateLinks(query, index);
                 return sb.ToString();
             }
 
@@ -205,15 +203,20 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine("</div></div>");
         }
 
-        private void AppendAffiliateLinks(Query query)
+        private void AppendAffiliateLinks(Query query, RepositoryIndex index)
         {
+            if (index is null)
+            {
+                return;
+            }
+
             WriteLine(Markup.P("Try also searching on:"));
             var term = query.OriginalString;
             term = Markup.UrlEncodeAndHtmlEscape(term);
             WriteLine("<ul>");
 
             // Read the AffiliateLinks file and display links one by one.
-            foreach (string line in AffiliateUrls)
+            foreach (string line in GetAffiliateUrls(index))
             {
                 AppendAffiliateLink(line + term);
             }
@@ -226,32 +229,20 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
             WriteLine(Markup.Li(Markup.A(url)));
         }
 
-        private static readonly string affiliateLinksFilePath = Path.Combine(RepositoryIndex.ContentPath, "AffiliateLinks.txt");
-        private static string[] affiliateUrls;
-        private static string[] AffiliateUrls
+        private string[] GetAffiliateUrls(RepositoryIndex index)
         {
-            get
+            var filePath = Path.Combine(index.contentPath, "AffiliateLinks.txt");
+            try
             {
-                if (affiliateUrls == null)
+                if (!File.Exists(filePath))
                 {
-                    try
-                    {
-                        if (File.Exists(affiliateLinksFilePath))
-                        {
-                            affiliateUrls = File.ReadAllLines(affiliateLinksFilePath);
-                        }
-                    }
-                    catch (System.Exception)
-                    {
-                    }
-
-                    if (affiliateUrls == null)
-                    {
-                        affiliateUrls = new string[0];
-                    }
+                    return [];
                 }
-
-                return affiliateUrls;
+                return File.ReadAllLines(filePath);
+            }
+            catch (Exception)
+            {
+                return [];
             }
         }
 
@@ -441,7 +432,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
 
             foreach (var symbol in symbolsInAssembly)
             {
-                Markup.WriteSymbol(project, symbol, sb);
+                Markup.WriteSymbol(symbol, sb);
             }
 
             WriteLine("</div></div>");

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,27 +11,30 @@ using Microsoft.SourceBrowser.Common;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer;
 
-public class RepositoryIndex : IDisposable
+public sealed class RepositoryIndex : IDisposable
 {
+    public static RepositoryIndex Empty { get; } = new RepositoryIndex()
+    {
+        indexFinishedPopulating = true,
+        isEmpty = true,
+        completed = Task.CompletedTask,
+    };
+
     public const int MaxRawResults = 100;
 
-    public static string ContentPath { get; private set; }
-
-    // For testing
-    public static void SetContentPath(string contentPath)
-    {
-        ContentPath = contentPath;
-    }
-
+    // HACK
     public RepositoryIndex()
     {
-
+        contentPath = "";
+        contentName = "";
+        completed = Task.CompletedTask;
     }
 
-    public RepositoryIndex(string rootPath)
+    public RepositoryIndex(string contentPath)
     {
-        ContentPath = rootPath;
-        Task.Run(() => IndexLoader.ReadIndex(this, rootPath));
+        this.contentPath = contentPath;
+        this.contentName = Path.GetFileName(contentPath)!;
+        completed = Task.Run(() => IndexLoader.ReadIndex(this, contentPath));
     }
 
     internal void ClearAll()
@@ -49,6 +53,10 @@ public class RepositoryIndex : IDisposable
         huffman = null;
     }
 
+    public string contentPath;
+    public string contentName;
+    public Task completed;
+    public bool isEmpty;
     public List<AssemblyInfo> assemblies = new List<AssemblyInfo>();
     public List<string> projects = new List<string>();
     public List<IndexEntry> symbols = new List<IndexEntry>();
@@ -60,10 +68,10 @@ public class RepositoryIndex : IDisposable
     public List<string> msbuildTargets = new List<string>();
     public List<string> msbuildTasks = new List<string>();
 
-    public Huffman huffman;
+    public Huffman? huffman;
     public bool indexFinishedPopulating = false;
     public double progress = 0.0;
-    public string loadErrorMessage = null;
+    public string? loadErrorMessage = null;
 
     public void PopulateSymbolsById()
     {
@@ -300,7 +308,7 @@ public class RepositoryIndex : IDisposable
         }
     }
 
-    private IEnumerable<string> FindInList(string searchTerm, List<string> list, bool defaultToAll)
+    private IEnumerable<string>? FindInList(string searchTerm, List<string> list, bool defaultToAll)
     {
         if (string.IsNullOrEmpty(searchTerm))
         {
@@ -459,11 +467,11 @@ public class RepositoryIndex : IDisposable
             }
         }
 
-        this.huffman = null;
-        this.symbols = null;
-        this.symbolsById = null;
-        this.assemblies = null;
-        this.projects = null;
+        this.huffman = null!;
+        this.symbols = null!;
+        this.symbolsById = null!;
+        this.assemblies = null!;
+        this.projects = null!;
     }
 
     ~RepositoryIndex()

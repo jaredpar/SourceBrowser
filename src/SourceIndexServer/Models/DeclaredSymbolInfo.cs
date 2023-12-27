@@ -68,9 +68,9 @@ namespace Microsoft.SourceBrowser.SourceIndexServer
                 Description == other.Description;
         }
 
-        public string GetUrl(string project)
+        public string GetUrl()
         {
-            return $"/{project}/{AssemblyName}/A.html#{Serialization.ULongToHexString(ID)}";
+            return "/" + AssemblyName + "/A.html#" + Serialization.ULongToHexString(ID);
         }
 
         public override bool Equals(object obj)

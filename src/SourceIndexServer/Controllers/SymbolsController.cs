@@ -7,7 +7,6 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SourceBrowser.Common;
-using Microsoft.SourceBrowser.SourceIndexServer;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
 {
@@ -26,12 +25,12 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
         }
 
         [HttpGet("/api/symbols")]
-        public IActionResult GetHtml(string symbol, string repository = null)
+        public IActionResult GetHtml(string symbol)
         {
             string result = null;
             try
             {
-                result = GetHtmlCore(symbol, repository);
+                result = GetHtmlCore(symbol);
             }
             catch (Exception ex)
             {
@@ -42,7 +41,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
         }
 
         [HttpGet("/api/symbolurl")]
-        public IActionResult GetSymbolUrl(string symbolId, string repository)
+        public IActionResult GetSymbolUrl(string symbolId)
         {
             try
             {
@@ -51,7 +50,8 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
                     return NotFound();
                 }
 
-                var index = _provider.GetRequiredService<RepositoryIndex>();
+                var manager = _provider.GetRequiredService<RepositoryManager>();
+                var index = manager.CurrentRepositoryIndex;
                 if (!index.symbolsById.TryGetValue(id, out int position))
                 {
                     return NotFound();
@@ -64,7 +64,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
 
                 var symbol = index.symbols[position];
                 var info = symbol.GetDeclaredSymbolInfo(index.huffman, index.assemblies, index.projects);
-                var url = info.GetUrl(repository);
+                var url = info.GetUrl();
 
                 return Content(url, "text/plain", Encoding.UTF8);
             }
@@ -143,7 +143,7 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
             }
         }
 
-        private string GetHtmlCore(string symbol, string repository, string usageStats = null)
+        private string GetHtmlCore(string symbol, string usageStats = null)
         {
             if (symbol == null || symbol.Length < 3)
             {
@@ -162,15 +162,11 @@ namespace Microsoft.SourceBrowser.SourceIndexServer.Controllers
             {
                 Stopwatch sw = Stopwatch.StartNew();
 
-                repository ??= "complog";
                 var manager = _provider.GetRequiredService<RepositoryManager>();
-                if (!manager.TryGetRepository(repository, out var p))
-                {
-                    return Markup.Note($"Project '{repository}' not found.");
-                }
+                var index = manager.CurrentRepositoryIndex;
+                var query = index.Get(symbol);
 
-                var query = p.RepositoryIndex.Get(symbol);
-                var result = new ResultsHtmlGenerator(repository, query).Generate(sw, p.RepositoryIndex, usageStats);
+                var result = new ResultsHtmlGenerator(query).Generate(sw, index, usageStats);
                 return result;
             }
         }

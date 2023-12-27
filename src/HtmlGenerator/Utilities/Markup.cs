@@ -104,7 +104,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
         }
 
         private const string referencesFileHeader = @"<!DOCTYPE html>
-<html><head><title>{0}</title><link rel=""stylesheet"" href=""/styles.css""/><script src=""../../scripts.js""></script></head><body onload=""ro();"">";
+<html><head><title>{0}</title><link rel=""stylesheet"" href=""/styles.css""/><script src=""/scripts.js""></script></head><body onload=""ro();"">";
 
         public static void WriteReferencesFileHeader(StreamWriter writer, string title)
         {
@@ -136,7 +136,7 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
 <head>
 <title>Redirecting...</title>
 <link rel=""stylesheet"" href=""/styles.css"">
-<script src=""../scripts.js""></script>
+<script src=""/scripts.js""></script>
 <script>
 redirectToReferences();
 </script>
@@ -157,13 +157,13 @@ redirectToReferences();
         }
 
         private static string documentHtmlPrefixTemplate = @"<!DOCTYPE html>
-<html><head><title>{0}</title><link rel=""stylesheet"" href=""/styles.css""><script src=""{1}scripts.js""></script></head>
-<body class=""cB"" onload=""{3}({2});"">";
+<html><head><title>{0}</title><link rel=""stylesheet"" href=""/styles.css""><script src=""/scripts.js""></script></head>
+<body class=""cB"" onload=""{2}({1});"">";
         private static string documentTablePrefix = @"<div class=""cz""><table class=""tb"" cellpadding=""0"" cellspacing=""0""><tr>{1}<td valign=""top"" align=""right""><pre id=""ln"">{0}</pre></td><td valign=""top"" align=""left""><pre id=""code"">";
 
         public static string GetDocumentPrefix(string title, string relativePathToRoot, int lineCount, string customJSOnloadFunction = "i")
         {
-            var html = string.Format(documentHtmlPrefixTemplate, title, relativePathToRoot, lineCount, customJSOnloadFunction);
+            var html = string.Format(documentHtmlPrefixTemplate, title, lineCount, customJSOnloadFunction);
             return html;
         }
 
@@ -211,7 +211,7 @@ redirectToReferences();
         public static void WriteMetadataToSourceRedirectPrefix(StreamWriter writer)
         {
             const string contents = @"<!DOCTYPE html>
-<html><head><title>Redirecting...</title><script src=""../scripts.js""></script>
+<html><head><title>Redirecting...</title><script src=""/scripts.js""></script>
 <script>
 ";
             writer.WriteLine(contents);
@@ -259,7 +259,7 @@ Don't use this page directly, pass #symbolId to get redirected.
         {
             sb.AppendFormat(@"<!DOCTYPE html><html><head><title>{0}</title>
 <link rel=""stylesheet"" href=""/styles.css"">
-<script src=""../scripts.js""></script>
+<script src=""/scripts.js""></script>
 </head><body class=""projectExplorerBody"">
 <div class=""tabChannel""><span class=""activeTab"">Project</span><a class=""inactiveTab"" href=""/#{0},namespaces"" target=""_top"">Namespaces</a></div>
 ", projectTitle);
@@ -272,7 +272,7 @@ Don't use this page directly, pass #symbolId to get redirected.
 
         public static void WriteSolutionExplorerPrefix(TextWriter writer)
         {
-            writer.WriteLine(@"<!DOCTYPE html><html><head><title>Solution Explorer</title><link rel=""stylesheet"" href=""/styles.css"" /><script src=""scripts.js""></script></head>
+            writer.WriteLine(@"<!DOCTYPE html><html><head><title>Solution Explorer</title><link rel=""stylesheet"" href=""/styles.css"" /><script src=""/scripts.js""></script></head>
 <body class=""solutionExplorerBody"">
     <div>
         <div class=""note"">
@@ -291,10 +291,10 @@ Don't use this page directly, pass #symbolId to get redirected.
         {
             sw.WriteLine(string.Format(@"<!DOCTYPE html><html><head><title>Namespaces</title>
 <link rel=""stylesheet"" href=""/styles.css"">
-<script src=""{0}scripts.js""></script>
+<script src=""/scripts.js""></script>
 </head><body class=""namespaceExplorerBody"">
-<div class=""tabChannel""><a class=""inactiveTab"" href=""/#{1}"" target=""_top"">Project</a><span class=""activeTab"">Namespaces</span></div>
-", pathPrefix, assemblyName));
+<div class=""tabChannel""><a class=""inactiveTab"" href=""/#{0}"" target=""_top"">Project</a><span class=""activeTab"">Namespaces</span></div>
+", assemblyName));
         }
 
         public static void WriteNamespaceExplorerSuffix(StreamWriter sw)
@@ -305,7 +305,7 @@ Don't use this page directly, pass #symbolId to get redirected.
         public static void WriteProjectIndex(StringBuilder sb, string assemblyName)
         {
             sb.AppendFormat(@"<!DOCTYPE html><html><head><title>Redirecting</title>
-<script src=""../scripts.js""></script>
+<script src=""/scripts.js""></script>
 <script>initializeProjectIndex(""../#{0}"");</script>
 </head><body></body></html>", assemblyName);
         }
@@ -342,7 +342,7 @@ Don't use this page directly, pass #symbolId to get redirected.
         {
             return @"<!DOCTYPE html><html><head><title>Results</title>
 <link rel=""stylesheet"" href=""/styles.css"" />
-<script src=""scripts.js""></script>
+<script src=""/scripts.js""></script>
 </head>
 <body onload=""onResultsLoad();"">
 <div id=""symbols"" aria-live=""polite"">

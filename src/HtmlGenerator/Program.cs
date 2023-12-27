@@ -64,7 +64,6 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
                 IndexSolutions(options.Projects, options.Properties, federation, options.ServerPathMappings, options.PluginBlacklist, options.DoNotIncludeReferencedProjects, options.RootPath);
                 FinalizeProjects(options.EmitAssemblyList, federation);
                 // WebsiteFinalizer.Finalize(websiteDestination, options.EmitAssemblyList, federation);
-                CopyFiles(options.Name);
                 File.WriteAllText(Path.Combine(Paths.ContentDirectory, "name.txt"), options.Name);
             }
             Log.Close();
@@ -91,21 +90,6 @@ namespace Microsoft.SourceBrowser.HtmlGenerator
         }
 
         private static readonly Folder<ProjectSkeleton> mergedSolutionExplorerRoot = new Folder<ProjectSkeleton>();
-
-        private static void CopyFiles(string name)
-        {
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "index.html"), Path.Combine(Paths.ContentDirectory, "index.html"));
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "overview.html"), Path.Combine(Paths.ContentDirectory, "overview.html"));
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "header.html"), Path.Combine(Paths.ContentDirectory, "header.html"));
-            File.Copy(Path.Combine(Common.Paths.BaseAppFolder, "Web", "documentoutline.html"), Path.Combine(Paths.ContentDirectory, "documentoutline.html"));
-
-            var lines = File.ReadAllLines(Path.Combine(Common.Paths.BaseAppFolder, "Web", "scripts.js"));
-            File.WriteAllLines( 
-                Path.Combine(Paths.ContentDirectory, "scripts.js"),
-                Enumerable.Concat(
-                    new string[] { @$"var repositoryName=""{name}"";" },
-                    lines));
-        }
 
         private static IEnumerable<string> GetAssemblyNames(string filePath)
         {

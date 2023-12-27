@@ -23,7 +23,7 @@ public sealed class AzurePullService : BackgroundService
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await PullRepositories(cancellationToken);
+            // await PullRepositories(cancellationToken);
             await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
         }
     }
@@ -61,6 +61,6 @@ public sealed class AzurePullService : BackgroundService
         }
 
         var indexName = await generator.Generate("razor", entry.Open());
-        RepositoryManager.AddOrUpdateRepository("razor", indexName);
+        // RepositoryManager.AddOrUpdateRepository("razor", indexName);
     }
 }
