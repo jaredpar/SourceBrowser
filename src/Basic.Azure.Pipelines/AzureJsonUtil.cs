@@ -20,6 +20,10 @@ namespace Basic.Azure.Pipelines
         {
             PropertyNameCaseInsensitive = true,
             AllowTrailingCommas = true,
+            Converters = 
+            {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+            }
         };
 
         public static T[] GetArray<T>(string json)
