@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+using Basic.Azure.Pipelines;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.SourceBrowser.SourceIndexServer.Pages;
@@ -17,12 +18,19 @@ public sealed class RepositoryUrlRewriter : IMiddleware
 
     public Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (context.Request.Path.Value is string path)
+        if (context.Request.Path.Value is string path &&
+            path.Length > 0 &&
+            path[0] == '/')
         {
-            if (path.Length > 1 && path[0] == '/')
+            bool isStandard;
+            if (path.Length == 1)
+            {
+                isStandard = true;
+                context.Request.Path = "/index.html";
+            }
+            else
             {
                 var index = path.IndexOf('/', startIndex: 1);
-                bool isStandard;
                 if (index > 1)
                 {
                     var folder = path.Substring(1, index - 1);
@@ -46,23 +54,13 @@ public sealed class RepositoryUrlRewriter : IMiddleware
                         _ => false,
                     };
                 }
-
-                if (isStandard)
-                {
-                    return next(context);
-                }
             }
 
-            if (path == "/")
-            {
-                path = $"/{Manager.CurrentRepositoryIndex.contentName}/index.html";
-            }
-            else
+            if (!isStandard)
             {
                 path = $"/{Manager.CurrentRepositoryIndex.contentName}{path}";
+                context.Request.Path = path;
             }
-
-            context.Request.Path = path;
         }
 
         return next(context);

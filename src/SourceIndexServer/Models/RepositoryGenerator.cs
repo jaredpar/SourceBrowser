@@ -19,7 +19,7 @@ public sealed class RepositoryGenerator(RepositoryManager repositoryManager, ICo
     /// Generates the repository contents and returns the index name that it was generated
     /// to.
     /// </summary>
-    public async Task<string> GenerateAsync()
+    public async Task<string> GenerateAsync(CancellationToken cancellationToken)
     {
         var dirName = Guid.NewGuid().ToString();
         var dirPath = Path.Combine(RepositoryManager.IndexPath, dirName);
@@ -28,10 +28,11 @@ public sealed class RepositoryGenerator(RepositoryManager repositoryManager, ICo
             throw new ArgumentException($"Directory {dirName} already exists");
         }
 
-        var complogFilePaths = RepositoryManager
-            .GetCompilerLogs()
-            .Select(x => x.CompilerLogFilePath);
-        await RunHtmlGenerator(complogFilePaths, dirPath);
+        await RepositoryManager.DoWithCompilerLogs(async compilerLogs =>
+        {
+            await RunHtmlGenerator(compilerLogs, dirPath);
+        }, cancellationToken);
+
         return dirName;
     }
 

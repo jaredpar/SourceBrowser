@@ -1,6 +1,8 @@
 #nullable enable
 
 using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Basic.Azure.Pipelines;
 using Microsoft.SourceBrowser.SourceIndexServer.Json;
@@ -149,7 +151,7 @@ public sealed partial class ComplogUpdateService : BackgroundService
             try
             {
                 var generator = scope.ServiceProvider.GetRequiredService<RepositoryGenerator>();
-                var indexName = await generator.GenerateAsync();
+                var indexName = await generator.GenerateAsync(cancellationToken);
                 await RepositoryManager.ReplaceIndexAsync(indexName);
             }
             catch (Exception ex)
@@ -180,7 +182,30 @@ file sealed class FileSystemSource(
         }
 
         using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return await manager.ReplaceCompilerLogAsync(sourceName, fileStream, cancellationToken);
+        var sha = SHA256.Create();
+        var hash = sha.ComputeHash(fileStream);
+        var hashText = GetHashText(hash);
+        fileStream.Position = 0;
+
+        if (await manager.GetCompilerLogKey(SourceName, cancellationToken) is string existingKey &&
+            existingKey == hashText)
+        {
+            return false;
+        }
+
+        await manager.ReplaceCompilerLogAsync(sourceName, hashText, fileStream, cancellationToken);
+        return true;
+
+        static string GetHashText(ReadOnlySpan<byte> span)
+        {
+            var builder = new StringBuilder();
+            foreach (var b in span)
+            {
+                builder.Append($"{b:X2}");
+            }
+
+            return builder.ToString();
+        }
     }
 }
 
@@ -200,12 +225,20 @@ file sealed class AzureBuildCompilerLogSource(
         const int max = 100;
         var token = new AuthorizationToken(AuthorizationKind.PersonalAccessToken, configuration[Constants.KeyAzdoToken]!);
         var server = new DevOpsServer(organization, token, httpClientFactory.CreateClient());
+        var existingKey = await manager.GetCompilerLogKey(SourceName, cancellationToken);
 
         var count = 0;
         await foreach (var build in server.EnumerateBuildsAsync(project, definitions: [definition], statusFilter: BuildStatus.Completed))
         {
             count++;
             if (count >= max)
+            {
+                break;
+            }
+
+            // If this is the last build that we got the compiler log from then no need to go any further.
+            var key = build.GetBuildKey().ToString();
+            if (key == existingKey)
             {
                 break;
             }
@@ -225,7 +258,8 @@ file sealed class AzureBuildCompilerLogSource(
                 continue;
             }
 
-            return await manager.ReplaceCompilerLogAsync(sourceName, entry.Open(), cancellationToken);
+            await manager.ReplaceCompilerLogAsync(sourceName, key, entry.Open(), cancellationToken);
+            return true;
         }
 
         return false;
