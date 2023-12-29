@@ -3,6 +3,7 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Basic.Azure.Pipelines;
 using Microsoft.SourceBrowser.SourceIndexServer.Json;
@@ -52,7 +53,7 @@ public sealed partial class ComplogUpdateService : BackgroundService
     {
         try
         {
-            var filePath = Path.Combine(RepositoryManager.RootPath, "source.json");
+            var filePath = Path.Combine(RepositoryManager.RootPath, "sources.json");
             if (!File.Exists(filePath))
             {
                 Logger.LogError($"Missing source.json file at {filePath}");
@@ -60,69 +61,83 @@ public sealed partial class ComplogUpdateService : BackgroundService
             }
 
             using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var updateJson = await JsonSerializer.DeserializeAsync<UpdateJson>(stream, Options, cancellationToken);
-            if (updateJson is null)
+            var sourcesJson = await JsonSerializer.DeserializeAsync<SourcesJson>(stream, Options, cancellationToken);
+            if (sourcesJson is null)
             {
                 Logger.LogError($"No sources in {filePath}");
                 return [];
             }
 
             var list = new List<ICompilerLogSource>();
-
-            // HACK
-            list.Add(new WorkflowCompilerLogSource(
-                "complog",
-                "jaredpar",
-                "complog",
-                "dotnet.yml",
-                "windows.complog",
-                "msbuild.complog"));
-
-            if (updateJson.Files is not null)
+            foreach (var sourceJson in sourcesJson.Sources)
             {
-                foreach (var json in updateJson.Files)
+                if (sourceJson.Name.Length == 0)
                 {
-                    HandleFileSystem(json);
+                    continue;
                 }
-            }
 
-            if (updateJson.Pipelines is not null)
-            {
-                foreach (var json in updateJson.Pipelines)
+                if (sourceJson.File is not null)
                 {
-                    HandleAzure(json);
+                    HandleFileSystem(sourceJson.Name, sourceJson.File);
+                }
+                else if (sourceJson.Workflow is not null)
+                {
+                    HandleWorkflow(sourceJson.Name, sourceJson.Workflow);
+                }
+                else if (sourceJson.Pipeline is not null)
+                {
+                    HandlePipeline(sourceJson.Name, sourceJson.Pipeline);
                 }
             }
 
             return list;
 
-            void HandleFileSystem(FileJson json)
+            void HandleFileSystem(string sourceName, FileJson json)
             {
-                if (string.IsNullOrEmpty(json.SourceName) ||
-                    string.IsNullOrEmpty(json.FilePath))
+                if (string.IsNullOrEmpty(json.FilePath))
                 {
-                    Logger.LogError("Bad file system source");
+                    Logger.LogError($"Bad file system source: {sourceName}");
                     return;
                 }
 
-                list.Add(new FileSystemSource(json.SourceName, json.FilePath));
+                list.Add(new FileSystemSource(sourceName, json.FilePath));
             }
 
-            void HandleAzure(AzurePipelineJson json)
+            void HandleWorkflow(string sourceName, WorkflowJson json)
             {
-                if (string.IsNullOrEmpty(json.SourceName) ||
-                    string.IsNullOrEmpty(json.Organization) ||
+                if (string.IsNullOrEmpty(json.Owner) ||
+                    string.IsNullOrEmpty(json.Repo) ||
+                    string.IsNullOrEmpty(json.WorkflowFileName) ||
+                    string.IsNullOrEmpty(json.ArtifactName) ||
+                    string.IsNullOrEmpty(json.FileName))
+                {
+                    Logger.LogError($"Bad workflow source: {sourceName}");
+                    return;
+                }
+
+                list.Add(new WorkflowCompilerLogSource(
+                    sourceName,
+                    json.Owner,
+                    json.Repo,
+                    json.WorkflowFileName,
+                    json.ArtifactName,
+                    json.FileName));
+            }
+
+            void HandlePipeline(string sourceName, PipelineJson json)
+            {
+                if (string.IsNullOrEmpty(json.Organization) ||
                     string.IsNullOrEmpty(json.Project) ||
                     string.IsNullOrEmpty(json.ArtifactName) ||
                     string.IsNullOrEmpty(json.FileName))
                 {
-                    Logger.LogError("Bad azure source");
+                    Logger.LogError($"Bad pipeline source: {sourceName}");
                     return;
                 }
 
                 list.Add(new AzureBuildCompilerLogSource(
                     Configuration,
-                    json.SourceName,
+                    sourceName,
                     json.Organization,
                     json.Project,
                     json.Definition,

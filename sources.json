@@ -1,0 +1,30 @@
+{
+    "sources": [
+        {
+            "name": "console",
+            "file": {
+                "filePath": "c:\\users\\jaredpar\\temp\\console\\msbuild.complog"
+            }
+        },
+        {
+            "name": "complog",
+            "workflow": {
+                "owner": "jaredpar",
+                "repo": "complog",
+                "workflowFileName": "dotnet.yml",
+                "artifactName": "windows.complog",
+                "fileName": "msbuild.complog"
+            }
+        },
+        {
+            "name": "razor",
+            "pipeline": {
+                "organization": "dnceng-public",
+                "project": "public",
+                "definition": 103,
+                "artifactName": "Windows_NT_Windows debug Attempt 1 Logs",
+                "fileName": "Build.complog"
+            }
+        }
+    ]
+}
