@@ -17,11 +17,14 @@ builder.Configuration[Constants.KeyHtmlGeneratorFilePath] = (Util.InDocker, Runt
 };
 
 // HACK
-builder.Configuration[Constants.KeyAzdoToken] = File.ReadAllText(@"c:\users\jaredpar\.tokens\azdo.txt").Trim();
+builder.Configuration[Constants.KeyAzdoToken] = File.ReadAllText(@"c:\users\jaredpar\.tokens\SourceBrowser\azdo.txt").Trim();
+builder.Configuration[Constants.KeyGitHubAppId] = File.ReadAllText(@"c:\users\jaredpar\.tokens\SourceBrowser\githubappid.txt").Trim();
+builder.Configuration[Constants.KeyGitHubAppSecretKey] = File.ReadAllText(@"c:\users\jaredpar\.tokens\SourceBrowser\githubappsecretkey.txt").Trim();
 
 builder.Services.AddSingleton(new RepositoryManager(rootPath));
 builder.Services.AddSingleton<RepositoryUrlRewriter>();
 builder.Services.AddScoped<RepositoryGenerator>();
+builder.Services.AddScoped<IGitHubClientFactory, GitHubClientFactory>();
 builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

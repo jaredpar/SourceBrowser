@@ -1,10 +1,6 @@
 {
     "files": [
         {
-            "sourceName": "complog",
-            "filePath": "c:\\users\\jaredpar\\code\\complog\\build.complog"
-        },
-        {
             "sourceName": "console",
             "filePath": "c:\\users\\jaredpar\\temp\\console\\msbuild.complog"
         }

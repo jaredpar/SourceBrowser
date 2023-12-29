@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.Json;
 using Basic.Azure.Pipelines;
 using Microsoft.SourceBrowser.SourceIndexServer.Json;
+using Octokit;
+using FileMode = System.IO.FileMode;
 
 namespace Microsoft.SourceBrowser.SourceIndexServer;
 
@@ -66,6 +68,16 @@ public sealed partial class ComplogUpdateService : BackgroundService
             }
 
             var list = new List<ICompilerLogSource>();
+
+            // HACK
+            list.Add(new WorkflowCompilerLogSource(
+                "complog",
+                "jaredpar",
+                "complog",
+                "dotnet.yml",
+                "windows.complog",
+                "msbuild.complog"));
+
             if (updateJson.Files is not null)
             {
                 foreach (var json in updateJson.Files)
@@ -129,13 +141,12 @@ public sealed partial class ComplogUpdateService : BackgroundService
     private async Task TryUpdateCompilerLogs(IList<ICompilerLogSource> compilerLogSources, CancellationToken cancellationToken)
     {
         using var scope = ServiceProvider.CreateScope();
-        var clientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
         var any = false;
         foreach (var compilerLogSource in compilerLogSources)
         {
             try
             {
-                if (await compilerLogSource.TryUpdateCompilerLogAsync(RepositoryManager, clientFactory, cancellationToken))
+                if (await compilerLogSource.TryUpdateCompilerLogAsync(RepositoryManager, scope.ServiceProvider, cancellationToken))
                 {
                     any = true;
                 }
@@ -165,7 +176,7 @@ public sealed partial class ComplogUpdateService : BackgroundService
 internal interface ICompilerLogSource
 {
     string SourceName { get; }
-    Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken);
+    Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IServiceProvider serviceProvider, CancellationToken cancellationToken);
 }
 
 file sealed class FileSystemSource(
@@ -174,7 +185,7 @@ file sealed class FileSystemSource(
 {
     public string SourceName => sourceName;
 
-    public async Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken)
+    public async Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
         if (!File.Exists(filePath))
         {
@@ -220,9 +231,10 @@ file sealed class AzureBuildCompilerLogSource(
 {
     public string SourceName => sourceName;
 
-    public async Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken)
+    public async Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
         const int max = 100;
+        var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
         var token = new AuthorizationToken(AuthorizationKind.PersonalAccessToken, configuration[Constants.KeyAzdoToken]!);
         var server = new DevOpsServer(organization, token, httpClientFactory.CreateClient());
         var existingKey = await manager.GetCompilerLogKey(SourceName, cancellationToken);
@@ -265,3 +277,69 @@ file sealed class AzureBuildCompilerLogSource(
         return false;
     }
 }
+
+
+file sealed class WorkflowCompilerLogSource(
+    string sourceName,
+    string owner,
+    string repo,
+    string workflowFileName,
+    string artifactName,
+    string fileName) : ICompilerLogSource
+{
+    public string SourceName => sourceName;
+
+    public async Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+    {
+        var gitHubClientFactory = serviceProvider.GetRequiredService<IGitHubClientFactory>();
+        var gitHubClient = await gitHubClientFactory.CreateForAppAsync(owner, repo);
+        var request = new WorkflowRunsRequest()
+        {
+            ExcludePullRequests = true,
+            Status = CheckRunStatusFilter.Completed,
+        };
+
+        const int max = 50;
+        int count = 0;
+        var response = await gitHubClient.Actions.Workflows.Runs.ListByWorkflow(owner, repo, workflowFileName, request);
+        foreach (var workflow in response.WorkflowRuns)
+        {
+            count++;
+            if (count >= max)
+            {
+                break;
+            }
+
+            var artifacts = await gitHubClient.Actions.Artifacts.ListWorkflowArtifacts(owner, repo, workflow.Id, new ListArtifactsRequest()
+            {
+                Name = artifactName,
+            });
+
+            if (artifacts.Artifacts.Count != 1)
+            {
+                continue;
+            }
+
+            var key = workflow.Id.ToString();
+            if (await manager.GetCompilerLogKey(SourceName, cancellationToken) is string existingKey &&
+                existingKey == key)
+            {
+                return false;
+            }
+
+            var artifact = artifacts.Artifacts[0];
+            var stream = await gitHubClient.Actions.Artifacts.DownloadArtifact(owner, repo, artifact.Id, "zip");
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
+            var entry = zip.GetEntry(fileName);
+            if (entry is null)
+            {
+                continue;
+            }
+            await manager.ReplaceCompilerLogAsync(SourceName, key, entry.Open(), cancellationToken);
+            return true;
+        }
+
+        return false;
+    }
+}
+
