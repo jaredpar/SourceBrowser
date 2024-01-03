@@ -19,6 +19,7 @@ public sealed class RepositoryManager : IDisposable
 
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
     private readonly Dictionary<string, SourceInfo> _sourceMap = new Dictionary<string, SourceInfo>();
+    private readonly ILogger<RepositoryManager> _logger;
     private readonly string _rootPath;
     private readonly string _sourcePath;
     private readonly string _indexPath;
@@ -29,8 +30,9 @@ public sealed class RepositoryManager : IDisposable
     public string RootPath => _rootPath;
     public string IndexPath => _indexPath;
 
-    public RepositoryManager(string rootPath)
+    public RepositoryManager(string rootPath, ILogger<RepositoryManager> logger)
     {
+        _logger = logger;
         _rootPath = rootPath;
         _indexPath = Path.Combine(rootPath, "index");
         _sourcePath = Path.Combine(rootPath, "source");
@@ -42,12 +44,14 @@ public sealed class RepositoryManager : IDisposable
             if (File.Exists(Path.Combine(dir, "Projects.txt")))
             {
                 _currentRepositoryIndex = new RepositoryIndex(dir);
+                _logger.LogInformation($"Using index {_currentRepositoryIndex.contentName} at {dir}");
                 break;
-            }   
+            }
         }
 
         if (_currentRepositoryIndex is null)
         {
+            _logger.LogInformation("No index found");
             _currentRepositoryIndex = RepositoryIndex.Empty;
         }
     }

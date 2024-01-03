@@ -11,9 +11,17 @@
             "preLaunchTask": "dotnet: build",
             "windows": {
                 "program": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net8.0/Microsoft.SourceBrowser.SourceIndexServer.exe",
+                "env":{
+                    "ASPNETCORE_ENVIRONMENT": "Development",
+                    "HtmlGeneratorFilePath": "${workspaceFolder}\\src\\HtmlGenerator\\bin\\Debug\\net8.0\\HtmlGenerator.dll",
+                }
             },
             "linux": {
                 "program": "${workspaceFolder}/src/SourceIndexServer/bin/Debug/net8.0/Microsoft.SourceBrowser.SourceIndexServer",
+                "env":{
+                    "ASPNETCORE_ENVIRONMENT": "Development",
+                    "HtmlGeneratorFilePath": "${workspaceFolder}/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator.dll",
+                }
             },
             "args": [],
             // "cwd": "c:/users/jaredpar/code/sourcebrowser/testSite",

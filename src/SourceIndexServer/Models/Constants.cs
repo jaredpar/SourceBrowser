@@ -11,9 +11,9 @@
         public static readonly string ReferencesFileName = "R";
         public static readonly string GuidAssembly = "GuidAssembly";
 
-        public static readonly string KeyAzdoToken = "TokenAzdo";
+        public static readonly string KeyAzdoToken = "AzdoToken";
         public static readonly string KeyGitHubAppId = "GitHubAppId";
         public static readonly string KeyGitHubAppSecretKey = "GitHubAppSecretKey";
-        public static readonly string KeyHtmlGeneratorFilePath = "FilePathHtmlGenerator";
+        public static readonly string KeyHtmlGeneratorFilePath = "HtmlGeneratorFilePath";
     }
 }

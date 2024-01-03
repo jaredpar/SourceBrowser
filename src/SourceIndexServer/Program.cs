@@ -1,27 +1,38 @@
 ﻿using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.SourceBrowser.SourceIndexServer;
+using Azure.Identity;
+using Microsoft.Build.Framework;
+using Azure.Core;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var inDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+var inAzure = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
 var rootPath = Path.Combine(builder.Environment.ContentRootPath, ".data");
 
-// HACK
-builder.Configuration[Constants.KeyHtmlGeneratorFilePath] = (Util.InDocker, RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) switch
+Console.WriteLine($"In Docker: {inDocker}");
+Console.WriteLine($"In Azure: {inAzure}");
+Console.WriteLine($"In Production: {builder.Environment.IsProduction()}");
+Console.WriteLine($"Root Path: {rootPath}");
+
+if (builder.Environment.IsProduction())
 {
-    (true, _) => @"/App/generator/HtmlGenerator.dll",
-    (false, true) => @"C:\Users\jaredpar\code\SourceBrowser\src\HtmlGenerator\bin\Debug\net8.0\HtmlGenerator.dll",
-    (false, false) =>"/home/jaredpar/code/SourceBrowser/src/HtmlGenerator/bin/Debug/net8.0/HtmlGenerator.dll",
-};
+    TokenCredential credential = (inDocker, inAzure) switch
+    {
+        (true, false) => new EnvironmentCredential(), // provided by --env-file
+        (true, true) => new DefaultAzureCredential(), // provided by Azure managed id
+        _ => throw new InvalidOperationException("Unsupported environment"),
+    };
 
-// HACK
-builder.Configuration[Constants.KeyAzdoToken] = File.ReadAllText(@"c:\users\jaredpar\.tokens\SourceBrowser\azdo.txt").Trim();
-builder.Configuration[Constants.KeyGitHubAppId] = File.ReadAllText(@"c:\users\jaredpar\.tokens\SourceBrowser\githubappid.txt").Trim();
-builder.Configuration[Constants.KeyGitHubAppSecretKey] = File.ReadAllText(@"c:\users\jaredpar\.tokens\SourceBrowser\githubappsecretkey.txt").Trim();
+    builder.Configuration.AddAzureKeyVault(
+        new Uri($"https://codenav.vault.azure.net/"),
+        credential);
+}
 
-builder.Services.AddSingleton(new RepositoryManager(rootPath));
+builder.Services.AddSingleton(sp => new RepositoryManager(rootPath, sp.GetRequiredService<ILogger<RepositoryManager>>()));
 builder.Services.AddSingleton<RepositoryUrlRewriter>();
 builder.Services.AddScoped<RepositoryGenerator>();
 builder.Services.AddScoped<IGitHubClientFactory, GitHubClientFactory>();

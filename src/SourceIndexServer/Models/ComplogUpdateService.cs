@@ -150,7 +150,6 @@ public sealed partial class ComplogUpdateService : BackgroundService
             Logger.LogError(ex, "Failed to load compiler log sources");
             return [];
         }
-
     }
 
     private async Task TryUpdateCompilerLogs(IList<ICompilerLogSource> compilerLogSources, CancellationToken cancellationToken)
@@ -245,9 +244,11 @@ file sealed class AzureBuildCompilerLogSource(
     string fileName) : ICompilerLogSource
 {
     public string SourceName => sourceName;
+    public HashSet<(int BuildNumber, DateTimeOffset Finished)> VisitedBuilds = new();
 
     public async Task<bool> TryUpdateCompilerLogAsync(RepositoryManager manager, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
+        LimitVisitedBuilds();
         const int max = 100;
         var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
         var token = new AuthorizationToken(AuthorizationKind.PersonalAccessToken, configuration[Constants.KeyAzdoToken]!);
@@ -257,10 +258,22 @@ file sealed class AzureBuildCompilerLogSource(
         var count = 0;
         await foreach (var build in server.EnumerateBuildsAsync(project, definitions: [definition], statusFilter: BuildStatus.Completed))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             count++;
             if (count >= max)
             {
                 break;
+            }
+
+            // Don't revisit builds that we've already seen. Builds can finish multiple times (different attempts) so the 
+            // finish time needs to be part of the key.
+            if (build.GetFinishTime() is DateTimeOffset finishTime)
+            {
+                if (!VisitedBuilds.Add((build.Id, finishTime)))
+                {
+                    continue;
+                }
             }
 
             // If this is the last build that we got the compiler log from then no need to go any further.
@@ -290,6 +303,16 @@ file sealed class AzureBuildCompilerLogSource(
         }
 
         return false;
+    }
+
+    private void LimitVisitedBuilds()
+    {
+        const int max = 200;
+        if (VisitedBuilds.Count >= max)
+        {
+            var builds = VisitedBuilds.OrderByDescending(x => x.Finished).Take(max / 2);
+            VisitedBuilds = new(builds);
+        }
     }
 }
 
